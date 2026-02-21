@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PorchPass Remittance Data Suite — Interactive Demo Results</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PORCHPASS DEMO RESULTS — INTERACTIVE COMPANION
+   Dec 2025 EOM · ROGUE Portfolio · 39 Queries · All Real Data
+   ═══════════════════════════════════════════════════════════ */
+:root{--navy:#0f1729;--navy-light:#1a2744;--navy-mid:#1e293b;--slate:#334155;--steel:#64748b;--silver:#94a3b8;--cloud:#e2e8f0;--snow:#f8fafc;--white:#fff;--teal:#0d9488;--teal-light:#ccfbf1;--teal-dark:#0f766e;--teal-glow:rgba(13,148,136,.15);--amber:#d97706;--amber-light:#fef3c7;--red:#dc2626;--red-light:#fee2e2;--green:#16a34a;--green-light:#dcfce7;--blue:#2563eb;--blue-light:#dbeafe;--purple:#7c3aed;--purple-light:#ede9fe;--shadow-sm:0 1px 3px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 30px rgba(0,0,0,.12);--radius:10px;--radius-lg:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;color:var(--navy);background:var(--snow);-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow-x:hidden}
+::selection{background:var(--teal-light);color:var(--teal-dark)}
+
+/* ═══ LAYOUT ═══ */
+.app{display:flex;min-height:100vh}
+.sidebar{width:272px;background:var(--navy);color:var(--white);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;transition:transform .35s cubic-bezier(.4,0,.2,1);scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.sidebar::-webkit-scrollbar{width:5px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:10px}
+.sidebar.collapsed{transform:translateX(-272px)}
+.main{margin-left:272px;flex:1;min-height:100vh;transition:margin-left .35s cubic-bezier(.4,0,.2,1)}
+.main.expanded{margin-left:0}
+
+/* ═══ SIDEBAR ═══ */
+.sb-hdr{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal-light);letter-spacing:-.5px}
+.sb-sub{font-size:10px;color:var(--silver);margin-top:3px;text-transform:uppercase;letter-spacing:2px;font-weight:600}
+.sb-nav{padding:8px 0 20px}
+.sb-seg{padding:2px 0}
+.sb-seg-hdr{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:11px;font-weight:700;color:var(--silver);text-transform:uppercase;letter-spacing:.8px;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+.sb-seg-hdr:hover{color:var(--teal-light);background:rgba(13,148,136,.06)}
+.sb-seg-hdr.act{color:var(--teal-light);background:rgba(13,148,136,.1);border-left-color:var(--teal)}
+.sb-num{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;transition:all .25s}
+.sb-seg-hdr.act .sb-num{background:var(--teal);color:var(--white)}
+.sb-steps{padding:0 0 2px;max-height:0;overflow:hidden;transition:max-height .3s ease}
+.sb-seg.open .sb-steps{max-height:600px}
+.sb-step{padding:5px 20px 5px 57px;font-size:11px;color:var(--steel);cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-step:hover{color:var(--white);background:rgba(255,255,255,.04)}
+.sb-step.act{color:var(--teal-light);background:rgba(13,148,136,.12);border-right:2px solid var(--teal)}
+.sb-mode{padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.sb-mode-btn{width:100%;padding:10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sb-mode-btn:hover{background:rgba(13,148,136,.15);border-color:var(--teal)}
+
+/* ═══ TOPBAR ═══ */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(248,250,252,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--cloud);padding:10px 32px;display:flex;align-items:center;gap:14px}
+.tb-toggle{width:34px;height:34px;border:1px solid var(--cloud);border-radius:8px;background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;color:var(--slate)}
+.tb-toggle:hover{border-color:var(--teal);color:var(--teal)}
+.tb-title{font-family:'DM Serif Display',serif;font-size:17px;flex:1;color:var(--navy)}
+.tb-date{font-size:12px;color:var(--steel);font-weight:500}
+.ride-btn{display:flex;align-items:center;gap:8px;padding:8px 20px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);color:var(--white);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .25s;letter-spacing:.3px}
+.ride-btn:hover{background:linear-gradient(135deg,var(--teal-dark) 0%,var(--teal) 100%);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+
+/* ═══ PROGRESS BAR ═══ */
+.prog-bar{background:var(--cloud);height:3px;position:relative;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));transition:width 1s ease;width:0}
+
+/* ═══ COVER SECTION ═══ */
+.cover{background:linear-gradient(145deg,var(--navy) 0%,var(--navy-light) 40%,var(--teal-dark) 100%);padding:56px 40px 48px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-120px;right:-120px;width:500px;height:500px;border-radius:50%;background:rgba(13,148,136,.07)}
+.cover::after{content:'';position:absolute;bottom:-160px;left:-100px;width:600px;height:600px;border-radius:50%;background:rgba(13,148,136,.04)}
+.cover-inner{max-width:1040px;margin:0 auto;position:relative;z-index:1}
+.cover-badge{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:5px 18px;font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal-light);margin-bottom:28px}
+.cover h1{font-family:'DM Serif Display',serif;font-size:42px;color:var(--white);line-height:1.15;margin-bottom:10px}
+.cover h2{font-family:'DM Sans',sans-serif;font-size:18px;font-weight:400;color:var(--silver);margin-bottom:40px}
+.cover-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.cover-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:18px 14px;text-align:center;transition:all .3s}
+.cover-stat:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}
+.cover-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--teal-light)}
+.cover-lbl{font-size:10px;color:var(--silver);margin-top:3px;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.cover-meta{margin-top:32px;display:flex;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--steel)}
+.cover-meta span{opacity:.6}
+
+/* ═══ DQ BAR ═══ */
+.dq-wrap{margin-top:28px}
+.dq-bar{display:flex;height:28px;border-radius:8px;overflow:hidden}
+.dq-s{display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:white;transition:all .5s}
+.dq-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;margin-top:8px;color:var(--silver)}
+.dq-legend b{color:var(--teal-light);font-weight:600}
+.dq-dot{display:inline-block;width:8px;height:8px;border-radius:3px;margin-right:4px;vertical-align:middle}
+
+/* ═══ CONTENT ═══ */
+.content{padding:0 32px 60px;max-width:1100px;margin:0 auto}
+
+/* ═══ SEGMENT BLOCKS ═══ */
+.seg{padding:40px 0 8px;opacity:0;transform:translateY(24px);transition:all .6s cubic-bezier(.4,0,.2,1)}
+.seg.vis{opacity:1;transform:translateY(0)}
+.seg-hdr{display:flex;align-items:center;gap:14px;margin-bottom:4px}
+.seg-num{width:40px;height:40px;border-radius:var(--radius);background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0}
+.seg-ttl{font-family:'DM Serif Display',serif;font-size:26px;color:var(--navy)}
+.seg-sub{color:var(--steel);font-size:12.5px;margin-left:54px;margin-bottom:18px;line-height:1.5}
+
+/* ═══ METRIC CARDS ═══ */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:18px}
+.m-card{background:var(--white);border:1px solid var(--cloud);border-radius:var(--radius);padding:14px 12px;text-align:center;transition:all .3s;box-shadow:var(--shadow-sm)}
+.m-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.m-card.pop{animation:mPop .45s ease}
+@keyframes mPop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+.m-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--navy);line-height:1.2}
+.m-val.teal{color:var(--teal)}.m-val.green{color:var(--green)}.m-val.amber{color:var(--amber)}.m-val.red{color:var(--red)}.m-val.blue{color:var(--blue)}.m-val.purple{color:var(--purple)}
+.m-lbl{font-size:9.5px;font-weight:700;color:var(--steel);text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+
+/* ═══ STEP CARDS ═══ */
+.scard{background:var(--white);border:1px solid var(--cloud);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:all .3s;box-shadow:var(--shadow-sm)}
+.scard:hover{box-shadow:var(--shadow-md)}
+.scard.hl{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-glow)}
+.sc-hd{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.sc-hd:hover{background:var(--snow)}
+.sc-id{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--navy);color:var(--white);padding:2px 8px;border-radius:5px;font-weight:700;flex-shrink:0;letter-spacing:.3px}
+.sc-nm{font-weight:600;font-size:12.5px;flex:1;color:var(--slate)}
+.sc-badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:5px;background:var(--teal-light);color:var(--teal-dark);font-weight:600}
+.sc-arr{font-size:12px;color:var(--silver);transition:transform .25s;flex-shrink:0}
+.scard.open .sc-arr{transform:rotate(90deg)}
+.sc-body{display:none;border-top:1px solid var(--cloud)}
+.scard.open .sc-body{display:block}
+
+/* ═══ SQL BLOCKS ═══ */
+.sql-tog{display:flex;align-items:center;gap:6px;padding:7px 16px;font-size:10px;color:var(--steel);cursor:pointer;border-bottom:1px solid var(--cloud);transition:all .15s;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.sql-tog:hover{color:var(--teal);background:var(--snow)}
+.sql-blk{display:none;padding:14px 16px;background:var(--navy-mid);overflow-x:auto;max-height:300px;overflow-y:auto}
+.sql-blk.show{display:block}
+.sql-blk pre{font-family:'JetBrains Mono',monospace;font-size:11px;color:#e2e8f0;line-height:1.65;white-space:pre-wrap}
+
+/* ═══ DATA TABLES ═══ */
+.tbl-w{overflow-x:auto;padding:0 0 4px}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead th{background:var(--navy);color:var(--white);font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;padding:8px 10px;text-align:left;white-space:nowrap;position:sticky;top:0}
+thead th:first-child{border-radius:0}
+tbody td{padding:6px 10px;border-bottom:1px solid var(--cloud);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--slate);white-space:nowrap;transition:background .15s}
+tbody tr:nth-child(even){background:rgba(248,250,252,.6)}
+tbody tr:hover{background:var(--teal-light)}
+td.tx{font-family:'DM Sans',sans-serif;white-space:normal;max-width:280px}
+td.pass{color:var(--green);font-weight:700}
+td.fail{color:var(--red);font-weight:700}
+td.ok{color:var(--teal);font-weight:700}
+td.warn{color:var(--amber);font-weight:600}
+.tbl-ft{font-size:10px;color:var(--steel);padding:6px 16px;font-style:italic;border-top:1px solid var(--cloud)}
+
+/* ═══ PIPELINE STEP VIZ ═══ */
+.pipe{padding:8px 16px}
+.pipe-r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--cloud);transition:background .15s}
+.pipe-r:last-child{border-bottom:none}
+.pipe-r:hover{background:var(--snow)}
+.pipe-ico{width:24px;text-align:center;font-size:13px;flex-shrink:0}
+.pipe-nm{flex:1;font-weight:500;font-size:12px;color:var(--navy)}
+.pipe-rows{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);font-weight:700;min-width:50px;text-align:right}
+.pipe-dur{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--steel);min-width:40px;text-align:right}
+
+/* ═══ CALLOUT ═══ */
+.callout{border-left:4px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;padding:12px 16px;margin:14px 0;font-size:12.5px;background:var(--teal-light);color:var(--teal-dark);line-height:1.55}
+.callout strong{color:var(--navy)}
+.callout.amber{background:var(--amber-light);border-color:var(--amber);color:#92400e}
+.callout.blue{background:var(--blue-light);border-color:var(--blue);color:#1e40af}
+
+/* ═══ FLOW DIAGRAM ═══ */
+.flow{display:flex;align-items:center;justify-content:center;gap:0;margin:16px 0;flex-wrap:wrap}
+.flow-node{background:var(--white);border:2px solid var(--cloud);border-radius:var(--radius);padding:10px 16px;text-align:center;min-width:100px;transition:all .4s}
+.flow-node.act{border-color:var(--teal);background:var(--teal-light);transform:scale(1.06);box-shadow:0 0 0 4px var(--teal-glow)}
+.flow-node.done{border-color:var(--green);background:var(--green-light)}
+.flow-lbl{font-weight:700;font-size:11px;color:var(--navy)}
+.flow-sub{font-size:9px;color:var(--steel);margin-top:1px}
+.flow-arr{font-size:16px;color:var(--silver);padding:0 6px;flex-shrink:0}
+
+/* ═══ VALIDATION HEATMAP ═══ */
+.vheat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.vh-cell{border-radius:8px;padding:10px;text-align:center;font-size:11px;font-weight:600;transition:all .3s}
+.vh-cell:hover{transform:scale(1.04)}
+.vh-nm{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;opacity:.8}
+.vh-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800}
+
+/* ═══ PIPELINE RIDE OVERLAY — ENHANCED ═══ */
+.ride-ov{position:fixed;inset:0;background:var(--navy);z-index:300;display:none;flex-direction:column;color:var(--white);overflow:hidden}
+.ride-ov.show{display:flex}
+
+/* ── Background & Particles ── */
+.ride-bg{position:absolute;inset:0;overflow:hidden}
+.ride-grid{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(13,148,136,.04) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(13,148,136,.04) 1px, transparent 1px);
+  background-size:60px 60px;animation:gridShift 30s linear infinite}
+@keyframes gridShift{to{background-position:60px 60px}}
+.ride-particle{position:absolute;opacity:.25;animation:rFloat linear infinite;transition:all 1.2s ease}
+.ride-particle.bronze{border-radius:2px;background:#cd7f32}
+.ride-particle.silver{border-radius:50%;background:#c0c0c0}
+.ride-particle.gold{border-radius:50%;background:#ffd700;box-shadow:0 0 6px rgba(255,215,0,.4)}
+.ride-particle.green{border-radius:50%;background:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.5)}
+.ride-particle.teal{border-radius:50%;background:#0d9488}
+.ride-particle.amber{border-radius:3px;background:#d97706;transform:rotate(45deg)}
+.ride-particle.purple{border-radius:50%;background:#7c3aed;box-shadow:0 0 10px rgba(124,58,237,.4)}
+.ride-particle.complete{border-radius:50%;background:#0d9488;box-shadow:0 0 12px rgba(13,148,136,.6)}
+@keyframes rFloat{0%{transform:translateY(110vh) scale(0) rotate(0deg)}35%{opacity:.5}50%{opacity:.7;transform:translateY(50vh) scale(1) rotate(180deg)}75%{opacity:.4}100%{transform:translateY(-10vh) scale(0) rotate(360deg);opacity:0}}
+
+/* ── Pipeline Tracker (top) ── */
+.ride-tracker{position:absolute;top:0;left:0;right:0;z-index:10;padding:16px 24px 12px;background:linear-gradient(180deg,rgba(15,23,41,.95) 0%,rgba(15,23,41,.7) 80%,transparent 100%)}
+.ride-tracker-inner{display:flex;align-items:center;gap:6px;max-width:900px;margin:0 auto;position:relative}
+.rt-node{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;cursor:pointer;transition:all .3s;opacity:.35;min-width:0}
+.rt-node.active{opacity:1;transform:scale(1.08)}
+.rt-node.done{opacity:.7}
+.rt-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:transparent;transition:all .4s;flex-shrink:0}
+.rt-node.active .rt-dot{background:var(--teal);border-color:var(--teal);box-shadow:0 0 12px rgba(13,148,136,.6);width:14px;height:14px}
+.rt-node.done .rt-dot{background:var(--green);border-color:var(--green)}
+.rt-lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--silver);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;transition:color .3s}
+.rt-node.active .rt-lbl{color:var(--teal-light)}
+.rt-node.done .rt-lbl{color:var(--green)}
+.rt-line{flex:0 0 auto;width:20px;height:2px;background:rgba(255,255,255,.1);transition:background .5s}
+.rt-line.done{background:var(--green)}
+.rt-line.active{background:linear-gradient(90deg,var(--green),var(--teal));animation:rtPulse 1.5s ease infinite}
+@keyframes rtPulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+/* ── Main Content Area ── */
+.ride-content{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;max-width:880px;width:100%;margin:0 auto;padding:70px 40px 120px;gap:0}
+
+/* ── Layer Badge ── */
+.ride-layer{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:3px;margin-bottom:14px;opacity:0;transform:translateY(20px);transition:all .5s}
+.ride-layer.in{opacity:1;transform:translateY(0)}
+.ride-layer .rl-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 18px;border-radius:20px;transition:all .6s}
+.rl-badge .rl-icon{font-size:16px}
+
+/* ── Title ── */
+.ride-stage{font-family:'DM Serif Display',serif;font-size:42px;line-height:1.2;opacity:0;transform:translateY(30px) scale(.96);transition:all .6s .1s;color:var(--white);text-align:center}
+.ride-stage.in{opacity:1;transform:translateY(0) scale(1)}
+
+/* ── Subtitle with typing effect ── */
+.ride-sub{font-size:15px;color:var(--silver);margin-top:10px;opacity:0;transform:translateY(20px);transition:all .5s .2s;line-height:1.6;text-align:center;max-width:680px;min-height:50px}
+.ride-sub.in{opacity:1;transform:translateY(0)}
+
+/* ── Animated Data Counters ── */
+.ride-data{margin-top:24px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;opacity:0;transition:all .5s .35s}
+.ride-data.in{opacity:1}
+.ride-datum{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 20px;text-align:center;min-width:110px;position:relative;overflow:hidden;transition:all .4s}
+.ride-datum:hover{background:rgba(255,255,255,.09);transform:translateY(-2px);border-color:rgba(255,255,255,.2)}
+.ride-datum::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--teal);transform:scaleX(0);transition:transform .6s ease;transform-origin:left}
+.ride-datum.counted::after{transform:scaleX(1)}
+.ride-datum-val{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--teal-light);transition:all .3s}
+.ride-datum-lbl{font-size:9px;color:var(--silver);text-transform:uppercase;letter-spacing:1px;margin-top:3px;font-weight:600}
+
+/* ── Mini Visualization ── */
+.ride-viz{margin-top:20px;width:100%;max-width:720px;opacity:0;transform:translateY(15px);transition:all .5s .5s}
+.ride-viz.in{opacity:1;transform:translateY(0)}
+
+/* Mini Data Table */
+.ride-mini-tbl{width:100%;border-collapse:collapse;font-size:10px;overflow:hidden;border-radius:8px;border:1px solid rgba(255,255,255,.1)}
+.ride-mini-tbl thead th{background:rgba(255,255,255,.08);color:var(--teal-light);font-weight:700;padding:7px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid rgba(255,255,255,.1)}
+.ride-mini-tbl tbody td{padding:5px 10px;color:var(--silver);border-bottom:1px solid rgba(255,255,255,.04);font-family:'JetBrains Mono',monospace;font-size:10px}
+.ride-mini-tbl tbody tr:nth-child(even){background:rgba(255,255,255,.03)}
+.ride-mini-tbl tbody tr:hover{background:rgba(13,148,136,.1)}
+.ride-mini-tbl tbody tr{opacity:0;transform:translateX(-10px);animation:tblRowIn .35s ease forwards}
+.ride-mini-tbl tbody tr:nth-child(1){animation-delay:.6s}
+.ride-mini-tbl tbody tr:nth-child(2){animation-delay:.75s}
+.ride-mini-tbl tbody tr:nth-child(3){animation-delay:.9s}
+@keyframes tblRowIn{to{opacity:1;transform:translateX(0)}}
+
+/* Data Flow Mini Diagram */
+.ride-flow-mini{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap}
+.rfm-node{padding:8px 14px;border-radius:8px;text-align:center;font-size:10px;font-weight:700;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);transition:all .5s;opacity:0;transform:scale(.8)}
+.rfm-node.in{opacity:1;transform:scale(1)}
+.rfm-node.active{border-color:var(--teal);background:rgba(13,148,136,.15);box-shadow:0 0 16px rgba(13,148,136,.3)}
+.rfm-node.done{border-color:var(--green);background:rgba(22,163,74,.1)}
+.rfm-arr{font-size:14px;color:var(--steel);padding:0 8px;opacity:0;transition:opacity .4s}
+.rfm-arr.in{opacity:1}
+.rfm-sub{font-size:8px;color:var(--steel);font-weight:400;margin-top:2px}
+
+/* Before/After Transform Strip */
+.ride-transform{display:flex;align-items:stretch;gap:2px;width:100%;border-radius:8px;overflow:hidden}
+.ride-tf-col{flex:1;padding:10px 12px;font-size:10px;text-align:center}
+.ride-tf-col.before{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2)}
+.ride-tf-col.arrow{flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--teal);background:rgba(255,255,255,.03)}
+.ride-tf-col.after{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2)}
+.ride-tf-hdr{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.ride-tf-col.before .ride-tf-hdr{color:#f87171}
+.ride-tf-col.after .ride-tf-hdr{color:#4ade80}
+.ride-tf-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--silver);line-height:1.6}
+
+/* Validation Heatmap Mini */
+.ride-vheat{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%}
+.ride-vh-cell{border-radius:6px;padding:8px;text-align:center;font-size:10px;font-weight:700;opacity:0;transform:scale(.8);animation:vhPop .4s ease forwards}
+.ride-vh-cell:nth-child(1){animation-delay:.5s}
+.ride-vh-cell:nth-child(2){animation-delay:.6s}
+.ride-vh-cell:nth-child(3){animation-delay:.7s}
+.ride-vh-cell:nth-child(4){animation-delay:.8s}
+.ride-vh-cell:nth-child(5){animation-delay:.9s}
+.ride-vh-cell:nth-child(6){animation-delay:1s}
+.ride-vh-cell:nth-child(7){animation-delay:1.1s}
+.ride-vh-cell:nth-child(8){animation-delay:1.2s}
+.ride-vh-cell:nth-child(9){animation-delay:1.3s}
+@keyframes vhPop{to{opacity:1;transform:scale(1)}}
+.ride-vh-nm{font-size:8px;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:2px}
+.ride-vh-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800}
+
+/* Version Flow */
+.ride-ver-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap}
+.rvf-node{padding:10px 16px;border-radius:8px;text-align:center;font-size:11px;font-weight:700;border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);opacity:0;transition:all .5s}
+.rvf-node.in{opacity:1}
+.rvf-node.active{border-color:var(--purple);background:rgba(124,58,237,.15);box-shadow:0 0 16px rgba(124,58,237,.3)}
+.rvf-arr{font-size:16px;color:var(--steel);padding:0 6px;opacity:0;transition:opacity .3s}
+.rvf-arr.in{opacity:1}
+.rvf-sub{font-size:8px;font-weight:400;color:var(--steel);margin-top:2px}
+
+/* ── Educational Callout ── */
+.ride-edu{position:absolute;bottom:100px;left:32px;max-width:320px;z-index:10;opacity:0;transform:translateX(-15px);transition:all .6s .7s}
+.ride-edu.in{opacity:1;transform:translateX(0)}
+.ride-edu-inner{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-left:3px solid var(--teal);border-radius:0 10px 10px 0;padding:14px 16px}
+.ride-edu-hdr{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal-light);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.ride-edu-hdr::before{content:'💡'}
+.ride-edu-txt{font-size:12px;color:var(--silver);line-height:1.55}
+
+/* ── Running Totals (right side) ── */
+.ride-totals{position:absolute;bottom:100px;right:32px;z-index:10;opacity:0;transform:translateX(15px);transition:all .6s .8s}
+.ride-totals.in{opacity:1;transform:translateX(0)}
+.ride-totals-inner{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px 16px;min-width:180px}
+.ride-totals-hdr{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--steel);margin-bottom:8px;text-align:center}
+.ride-total-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px}
+.ride-total-lbl{color:var(--steel);font-weight:500}
+.ride-total-val{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--teal-light);transition:all .4s}
+.ride-total-val.flash{color:var(--white);text-shadow:0 0 8px var(--teal)}
+
+/* ── Bottom Controls ── */
+.ride-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:0 24px 20px;background:linear-gradient(0deg,rgba(15,23,41,.95) 0%,rgba(15,23,41,.7) 80%,transparent 100%)}
+.ride-prog{width:100%;max-width:600px;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:0 auto 14px}
+.ride-prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:3px;transition:width 1s ease}
+.ride-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px}
+.ride-ctrl-btn{width:36px;height:36px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:var(--white);font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.ride-ctrl-btn:hover{background:rgba(255,255,255,.08);border-color:var(--teal)}
+.ride-ctrl-btn:active{transform:scale(.92)}
+.ride-ctrl-btn.primary{width:44px;height:44px;border-radius:50%;background:rgba(13,148,136,.2);border-color:var(--teal)}
+.ride-ctrl-btn.primary:hover{background:rgba(13,148,136,.35)}
+.ride-ctrl-btn[title]:hover::after{content:attr(title);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);font-size:10px;white-space:nowrap;background:rgba(15,23,41,.95);border:1px solid rgba(255,255,255,.15);padding:4px 10px;border-radius:6px;pointer-events:none;z-index:20}
+.ride-step-ct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--steel);margin:0 12px}
+
+/* ── Helper Tooltip ── */
+.ride-help{display:flex;align-items:center;justify-content:center;gap:16px;font-size:10px;color:rgba(255,255,255,.25);transition:opacity .5s;margin-top:4px}
+.ride-help kbd{display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.4);margin:0 2px}
+.ride-help-item{display:flex;align-items:center;gap:4px}
+
+/* ── Skip Button ── */
+.ride-skip{position:absolute;top:18px;right:24px;padding:7px 18px;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:var(--silver);background:transparent;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;z-index:15;display:flex;align-items:center;gap:6px}
+.ride-skip:hover{background:rgba(255,255,255,.06);border-color:var(--teal);color:var(--white)}
+.ride-skip kbd{display:inline-block;padding:1px 5px;border-radius:3px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.4)}
+
+/* ── Data Narrative (first-person from data POV) ── */
+.ride-narrative{position:absolute;top:70px;left:32px;max-width:260px;z-index:10;opacity:0;transform:translateY(-10px);transition:all .5s .9s}
+.ride-narrative.in{opacity:1;transform:translateY(0)}
+.ride-narrative-inner{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--steel);line-height:1.5;font-style:italic}
+.ride-narrative-inner::before{content:'"';font-size:24px;color:var(--teal);font-style:normal;line-height:0;vertical-align:sub;margin-right:2px}
+
+/* ── Pulse/Glow Effects ── */
+@keyframes glowPulse{0%,100%{box-shadow:0 0 15px rgba(13,148,136,.2)}50%{box-shadow:0 0 35px rgba(13,148,136,.5)}}
+.glow-pulse{animation:glowPulse 2s ease infinite}
+@keyframes borderGlow{0%,100%{border-color:rgba(13,148,136,.3)}50%{border-color:rgba(13,148,136,.8)}}
+.border-glow{animation:borderGlow 1.5s ease infinite}
+
+/* ── Responsive for Ride ── */
+@media(max-width:900px){
+  .ride-edu,.ride-totals,.ride-narrative{display:none}
+  .ride-content{padding:80px 20px 130px}
+  .ride-stage{font-size:28px}
+  .ride-sub{font-size:13px}
+  .rt-lbl{display:none}
+  .ride-help{display:none}
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-272px)}.main{margin-left:0}
+  .cover-grid{grid-template-columns:repeat(3,1fr)}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .vheat{grid-template-columns:repeat(2,1fr)}
+  .content{padding:0 16px 40px}
+}
+@media(max-width:600px){
+  .cover-grid{grid-template-columns:repeat(2,1fr)}
+  .cover h1{font-size:28px}
+}
+@media print{
+  .sidebar,.topbar,.ride-btn,.sql-tog,.sql-blk,.sc-arr,.ride-ov,.sb-mode,.prog-bar{display:none!important}
+  .main{margin-left:0!important}
+  .sc-body{display:block!important}
+  .seg{opacity:1!important;transform:none!important;break-inside:avoid;page-break-inside:avoid}
+  .cover{break-after:page}
+  .content{padding:0 20px}
+  table{font-size:9px}
+  .m-card{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════════════ SIDEBAR ══════════════════════ -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-hdr">
+    <div class="sb-logo">PorchPass</div>
+    <div class="sb-sub">Remittance Data Suite</div>
+  </div>
+  <nav class="sb-nav" id="sbNav"></nav>
+  <div class="sb-mode">
+    <button class="sb-mode-btn" onclick="startRide()">▶ &nbsp;Launch Pipeline Ride</button>
+  </div>
+</div>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<div class="main" id="main">
+  <div class="topbar">
+    <button class="tb-toggle" onclick="togSB()" title="Toggle sidebar">☰</button>
+    <div class="tb-title">Demo Results Companion</div>
+    <div class="tb-date">December 2025 EOM</div>
+    <button class="ride-btn" id="rideBtn" onclick="startRide()">▶ &nbsp;Pipeline Ride</button>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+
+  <!-- COVER -->
+  <div class="cover" id="coverSection">
+    <div class="cover-inner">
+      <div class="cover-badge">Internal Demo · Version 1</div><div class="cover-badge" style="background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.4);color:#fca5a5;margin-left:10px">NOT POPULATED WITH ACTUALS YET</div>
+      <h1>Remittance Report Data Suite</h1>
+      <h2>Automated Medallion Architecture — BigQuery on GCP</h2>
+      <div class="cover-grid">
+        <div class="cover-stat"><div class="cover-val">391</div><div class="cover-lbl">Loans Processed</div></div>
+        <div class="cover-stat"><div class="cover-val">$50.3M</div><div class="cover-lbl">Total UPB</div></div>
+        <div class="cover-stat"><div class="cover-val">3,519</div><div class="cover-lbl">Validations</div></div>
+        <div class="cover-stat"><div class="cover-val">38</div><div class="cover-lbl">Tables + Views</div></div>
+        <div class="cover-stat"><div class="cover-val">9</div><div class="cover-lbl">Procedures</div></div>
+        <div class="cover-stat"><div class="cover-val">$5-10</div><div class="cover-lbl">Monthly Cost</div></div>
+      </div>
+      <div class="dq-wrap">
+        <div class="dq-bar">
+          <div class="dq-s" style="width:91.6%;background:var(--teal)" title="Current: 358 loans">91.6%</div>
+          <div class="dq-s" style="width:2%;background:#fbbf24" title="1-29 DPD: 8 loans"></div>
+          <div class="dq-s" style="width:3.1%;background:var(--amber)" title="30-59 DPD: 12 loans">3.1</div>
+          <div class="dq-s" style="width:1%;background:#f97316" title="60-89 DPD: 4 loans"></div>
+          <div class="dq-s" style="width:2.3%;background:var(--red)" title="90+ DPD: 9 loans">2.3</div>
+        </div>
+        <div class="dq-legend">
+          <span><span class="dq-dot" style="background:var(--teal)"></span>Current: <b>358</b> ($46.3M)</span>
+          <span><span class="dq-dot" style="background:#fbbf24"></span>1-29 DPD: <b>8</b> ($913K)</span>
+          <span><span class="dq-dot" style="background:var(--amber)"></span>30-59: <b>12</b> ($1.5M)</span>
+          <span><span class="dq-dot" style="background:#f97316"></span>60-89: <b>4</b> ($438K)</span>
+          <span><span class="dq-dot" style="background:var(--red)"></span>90+: <b>9</b> ($1.1M)</span>
+        </div>
+      </div>
+      <div class="cover-meta">
+        <span>Report Period: 2025-12-31</span>
+        <span>Bank Partner: ROGUE</span>
+        <span>Sub-Servicer: Midwest</span>
+        <span>Pipeline: 150 min</span>
+        <span>Approved by: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a3cdcac0c8e3d3ccd1c0cbd3c2d0d08dc0ccce">[email&#160;protected]</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEGMENTS -->
+  <div class="content" id="content"></div>
+</div>
+</div>
+
+<!-- ══════════════════════ ENHANCED PIPELINE RIDE OVERLAY ══════════════════════ -->
+<div class="ride-ov" id="rideOv">
+  <div class="ride-bg" id="rideBg"><div class="ride-grid"></div></div>
+
+  <!-- Pipeline Tracker -->
+  <div class="ride-tracker" id="rideTracker"></div>
+
+  <!-- Skip -->
+  <button class="ride-skip" onclick="skipRide()">Skip to Results <kbd>Esc</kbd></button>
+
+  <!-- Data Narrative (first-person from data POV) -->
+  <div class="ride-narrative" id="rideNarrative"><div class="ride-narrative-inner" id="rideNarrText"></div></div>
+
+  <!-- Main Content -->
+  <div class="ride-content">
+    <div class="ride-layer" id="rideLayer"></div>
+    <div class="ride-stage" id="rideStage"></div>
+    <div class="ride-sub" id="rideSub"></div>
+    <div class="ride-data" id="rideData"></div>
+    <div class="ride-viz" id="rideViz"></div>
+  </div>
+
+  <!-- Educational Callout (bottom-left) -->
+  <div class="ride-edu" id="rideEdu"><div class="ride-edu-inner"><div class="ride-edu-hdr">Why This Matters</div><div class="ride-edu-txt" id="rideEduTxt"></div></div></div>
+
+  <!-- Running Totals (bottom-right) -->
+  <div class="ride-totals" id="rideTotals"><div class="ride-totals-inner"><div class="ride-totals-hdr">Running Totals</div><div id="rideTotalRows"></div></div></div>
+
+  <!-- Bottom Controls -->
+  <div class="ride-bottom">
+    <div class="ride-prog"><div class="ride-prog-fill" id="rideProgFill"></div></div>
+    <div class="ride-controls">
+      <button class="ride-ctrl-btn" onclick="rideGoFirst()" title="First stage"><span style="font-size:12px">⏮</span></button>
+      <button class="ride-ctrl-btn" onclick="ridePrev()" title="Previous stage (←)"><span style="font-size:16px">◀</span></button>
+      <button class="ride-ctrl-btn primary" id="ridePauseBtn" onclick="rideTogglePause()" title="Pause / Play (Space)"><span id="ridePauseIcon" style="font-size:16px">⏸</span></button>
+      <button class="ride-ctrl-btn" onclick="rideNext()" title="Next stage (→)"><span style="font-size:16px">▶</span></button>
+      <button class="ride-ctrl-btn" onclick="rideGoLast()" title="Last stage"><span style="font-size:12px">⏭</span></button>
+      <div class="ride-step-ct" id="rideStepCt"></div>
+    </div>
+    <div class="ride-help" id="rideHelp">
+      <span class="ride-help-item"><kbd>←</kbd> / <kbd>→</kbd> Navigate</span>
+      <span class="ride-help-item"><kbd>Space</kbd> Pause</span>
+      <span class="ride-help-item"><kbd>Esc</kbd> Exit</span>
+      <span class="ride-help-item">Click tracker nodes to jump</span>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ═══════════════════════════════════════════════════════════════════
+// ALL 39 DATASETS — REAL BIGQUERY RESULTS
+// ═══════════════════════════════════════════════════════════════════
+const D={
+"2b":[{"file_id":"file_dec2025_midwest_001","file_type":"REMIT_DATA","file_date":"2025-12-31","row_count":"785","file_size":"3.1 MB","status":"COMPLETED"},{"file_id":"file_dec2025_midwest_002","file_type":"TBALDATA","file_date":"2025-12-31","row_count":"397","file_size":"3.1 MB","status":"COMPLETED"}],
+"2c":[{"midwest_ln":"9000000052","madison_ln":"6000005","pay_date":"2025-12-09","escrow":"2,080.65","prin_bal":"249,712.83"},{"midwest_ln":"900000033","madison_ln":"4000003","pay_date":"2025-12-09","escrow":"321.38","prin_bal":"118,317.91"},{"midwest_ln":"1000000014","madison_ln":"3000009","pay_date":"2025-12-09","escrow":"248.51","prin_bal":"71,855.66"},{"midwest_ln":"1000000032","madison_ln":"3000003","pay_date":"2025-12-09","escrow":"1,492.15","prin_bal":"196,761.18"},{"midwest_ln":"0000000058","madison_ln":"1000009","pay_date":"2025-12-09","escrow":"346.52","prin_bal":"105,992.39"},{"midwest_ln":"9000000005","madison_ln":"5000007","pay_date":"2025-12-30","escrow":"0","prin_bal":"113,455.54"},{"midwest_ln":"4000000058","madison_ln":"3000005","pay_date":"2025-12-26","escrow":"0","prin_bal":"63,409.88"},{"midwest_ln":"8000000056","madison_ln":"1000005","pay_date":"2025-12-26","escrow":"-249.84","prin_bal":"62,315.67"},{"midwest_ln":"8000000056","madison_ln":"1000005","pay_date":"2025-12-18","escrow":"249.84","prin_bal":"62,267.36"},{"midwest_ln":"8000000056","madison_ln":"1000005","pay_date":"2025-12-09","escrow":"749.52","prin_bal":"62,267.36"}],
+"2d":[{"midwest_invln":"5001138618","madison_alt":"6000045","loan_type":"15 YR FIXED","rate":"8.77%","current_upb":"$79,635"},{"midwest_invln":"5001138428","madison_alt":"3000043","loan_type":"15 YR FIXED","rate":"8.52%","current_upb":"$78,693"},{"midwest_invln":"5001136984","madison_alt":"4000084","loan_type":"15 YR FIXED","rate":"8.35%","current_upb":"$108,421"},{"midwest_invln":"5001144558","madison_alt":"90000032","loan_type":"20 YR FIXED","rate":"8.06%","current_upb":"$122,797"},{"midwest_invln":"5000582451","madison_alt":"70000030","loan_type":"20 YR FIXED","rate":"7.97%","current_upb":"$118,325"},{"midwest_invln":"5001144574","madison_alt":"20000034","loan_type":"20 YR FIXED","rate":"8.08%","current_upb":"$106,667"},{"midwest_invln":"5001144566","madison_alt":"20000031","loan_type":"20 YR FIXED","rate":"7.96%","current_upb":"$82,065"},{"midwest_invln":"5001144582","madison_alt":"10000043","loan_type":"20 YR FIXED","rate":"8.01%","current_upb":"$92,853"},{"midwest_invln":"5001144590","madison_alt":"70000039","loan_type":"20 YR FIXED","rate":"8.09%","current_upb":"$117,023"},{"midwest_invln":"1000000014","madison_alt":"3000009","loan_type":"25 YR FIXED","rate":"8.40%","current_upb":"$71,856"}],
+"2e":[{"source":"Transactions (REMIT_DATA)","records":"785"},{"source":"Trial Balance (TBALDATA)","records":"397"},{"source":"File Ingests","records":"2"}],
+"3a":[{"loan":"loan_T123ABC456XYZhv","upb":"$297,573","rate":"8.36%","status":"PERFORMING","dpd":"0","madison":"2012043"},{"loan":"loan_F123ABC456XYZBc","upb":"$288,613","rate":"7.99%","status":"PERFORMING","dpd":"0","madison":"2011846"},{"loan":"loan_c123ABC456XYZvM","upb":"$274,203","rate":"8.54%","status":"PERFORMING","dpd":"0","madison":"2012434"},{"loan":"loan_v123ABC456XYZQM","upb":"$268,197","rate":"8.36%","status":"PERFORMING","dpd":"0","madison":"2012561"},{"loan":"loan_D123ABC456XYZiE","upb":"$264,901","rate":"8.42%","status":"PERFORMING","dpd":"0","madison":"2012155"},{"loan":"loan_9123ABC456XYZFz","upb":"$250,408","rate":"8.82%","status":"DQ60+","dpd":"138","madison":"6000005"}],
+"3b":[{"total_loans":"398","total_upb":"$51,508,031","avg_upb":"$129,417","avg_rate":"8.80%","performing":"366 (92%)","delinquent":"40 (10%)"}],
+"3c":[{"pp_loan":"loan_9123ABC456XYZ2B","madison_id":"7000052","midwest_ln":"1000000029","active":"true"},{"pp_loan":"loan_W123ABC456XYZ8Z","madison_id":"6000052","midwest_ln":"9000000030","active":"true"},{"pp_loan":"loan_S123ABC456XYZm6","madison_id":"4000052","midwest_ln":"7000000031","active":"true"},{"pp_loan":"loan_D123ABC456XYZ42","madison_id":"3000052","midwest_ln":"5000000032","active":"true"},{"pp_loan":"loan_V123ABC456XYZQu","madison_id":"8000050","midwest_ln":"3000000033","active":"true"}],
+"3d":[{"loan":"loan_Y123ABC456XYZ4D","date":"2025-12-09","total":"$0","principal":"$0","interest":"$0","escrow":"$1,802","status":"POSTED"},{"loan":"loan_v123ABC456XYZDq","date":"2025-12-09","total":"$0","principal":"$0","interest":"$0","escrow":"$2,068","status":"POSTED"},{"loan":"loan_v123ABC456XYZDq","date":"2025-12-26","total":"$2,000","principal":"$247","interest":"$1,753","escrow":"$414","status":"POSTED"},{"loan":"loan_o123ABC456XYZdb","date":"2025-12-18","total":"$564","principal":"$48","interest":"$516","escrow":"$250","status":"POSTED"},{"loan":"loan_o123ABC456XYZdb","date":"2025-12-26","total":"-$564","principal":"-$48","interest":"-$516","escrow":"-$250","status":"POSTED"}],
+"4a":[{"loan_id":"loan_x123ABC456XYZDR","version":"V4_APPROVED","upb":"$71,856","rate":"8.40%","escrow":"$249","status":"DQ60+","dpd":"244"},{"loan_id":"loan_S123ABC456XYZaM","version":"V4_APPROVED","upb":"$105,963","rate":"9.33%","escrow":"$347","status":"DQ60+","dpd":"213"},{"loan_id":"loan_9123ABC456XYZFz","version":"V4_APPROVED","upb":"$249,713","rate":"8.82%","escrow":"$2,081","status":"DQ60+","dpd":"138"},{"loan_id":"loan_8123ABC456XYZ3a","version":"V4_APPROVED","upb":"$124,485","rate":"9.32%","escrow":"$1,624","status":"COLLECTIONS","dpd":"46"},{"loan_id":"loan_E123ABC456XYZZi","version":"V4_APPROVED","upb":"$110,675","rate":"9.51%","escrow":"$4,463","status":"PERFORMING","dpd":"0"}],
+"4b":[{"period":"2025-12-31","partner":"ROGUE","version":"V4_APPROVED","loans":"391","upb":"$50,304,882","principal":"$30,271","interest":"$222,748","escrow":"$776,119","late_fees":"$320"}],
+"4c":[{"version":"V1_AUTO","current":"false","upb":"$71,856","val_status":"PASSED_WITH_WARNINGS","created":"03:32:07"},{"version":"V2_REVIEWED","current":"false","upb":"$71,856","val_status":"PASSED_WITH_WARNINGS","created":"04:10:23"},{"version":"V4_APPROVED","current":"true","upb":"$71,856","val_status":"PASSED_WITH_WARNINGS","created":"04:11:54"}],
+"5a":[{"#":"1","check":"UPB_MATCH","pass":"1","fail":"390","rate":"0.26%"},{"#":"2","check":"RATE_MATCH","pass":"391","fail":"0","rate":"100%"},{"#":"3","check":"PI_PAYMENT_MATCH","pass":"391","fail":"0","rate":"100%"},{"#":"4","check":"NEXT_DUE_MATCH","pass":"192","fail":"199","rate":"49.1%"},{"#":"5","check":"PRINCIPAL_COLLECTED","pass":"345","fail":"46","rate":"88.2%"},{"#":"6","check":"INTEREST_COLLECTED","pass":"391","fail":"0","rate":"100%"},{"#":"7","check":"ESCROW_COLLECTED","pass":"158","fail":"233","rate":"40.4%"},{"#":"8","check":"LATE_FEES_MATCH","pass":"381","fail":"10","rate":"97.4%"},{"#":"9","check":"INTEREST_ACCRUED","pass":"9","fail":"382","rate":"2.3%"}],
+"5b":[{"check":"UPB_MATCH","lsd":"$197,686","tbal":"$196,761","variance":"$924.87","result":"FAIL"},{"check":"RATE_MATCH","lsd":"8.80","tbal":"8.80","variance":"0","result":"PASS"},{"check":"PI_PAYMENT","lsd":"$1,632","tbal":"$1,632","variance":"$0","result":"PASS"},{"check":"NEXT_DUE","lsd":"2025-10-15","tbal":"2025-09-15","variance":"30 days","result":"FAIL"},{"check":"PRINCIPAL","lsd":"$0","tbal":"$0","variance":"$0","result":"PASS"},{"check":"INTEREST","lsd":"$0","tbal":"$0","variance":"$0","result":"PASS"},{"check":"ESCROW","lsd":"$1,492","tbal":"$1,492","variance":"$0","result":"PASS"},{"check":"LATE_FEES","lsd":"$0","tbal":"$0","variance":"$0","result":"PASS"},{"check":"INT_ACCRUED","lsd":"$5,122","tbal":"$6,530","variance":"$1,408","result":"FAIL"}],
+"5c":[{"check":"UPB","lsd_col":"current_balance","tbal_col":"current_upb","type":"ABSOLUTE","tol":"$1","priority":"CRITICAL","blocking":"true"},{"check":"Rate","lsd_col":"interest_rate","tbal_col":"interest_rate","type":"ABSOLUTE","tol":"0.0001","priority":"CRITICAL","blocking":"true"},{"check":"P&I Pmt","lsd_col":"monthly_payment","tbal_col":"pi_payment","type":"ABSOLUTE","tol":"$0.50","priority":"HIGH","blocking":"true"},{"check":"Next Due","lsd_col":"next_payment_due","tbal_col":"next_due_date","type":"EXACT","tol":"—","priority":"HIGH","blocking":"false"},{"check":"Principal","lsd_col":"mtd_principal","tbal_col":"principal_paid","type":"ABSOLUTE","tol":"$0.01","priority":"MEDIUM","blocking":"false"},{"check":"Interest","lsd_col":"mtd_interest","tbal_col":"interest_paid","type":"ABSOLUTE","tol":"$0.01","priority":"MEDIUM","blocking":"false"},{"check":"Escrow","lsd_col":"payment_escrow","tbal_col":"escrow_paid","type":"ABSOLUTE","tol":"$1","priority":"MEDIUM","blocking":"false"},{"check":"Late Fees","lsd_col":"mtd_late_fees","tbal_col":"late_charges","type":"ABSOLUTE","tol":"$0.01","priority":"LOW","blocking":"false"},{"check":"Int Accrued","lsd_col":"interest_accrued","tbal_col":"interest_accrued","type":"ABSOLUTE","tol":"$10","priority":"MEDIUM","blocking":"false"}],
+"5d":[{"total":"3,519","passed":"2,259","failed":"1,260","rate":"64.2%"}],
+"6a":[{"code":"V1_AUTO","name":"Auto-Generated","edit":"true","submit":"false","next":"V2_REVIEWED","desc":"System-generated from pipeline"},{"code":"V2_REVIEWED","name":"Post-Validation","edit":"true","submit":"true","next":"V3_SUBMITTED","desc":"After QA/QC corrections"},{"code":"V3_SUBMITTED","name":"Submitted to Bank","edit":"false","submit":"false","next":"V4_APPROVED","desc":"Pending bank approval"},{"code":"V4_APPROVED","name":"Final Approved","edit":"false","submit":"false","next":"—","desc":"Immutable archived record"},{"code":"REJECTED","name":"Rejected by Bank","edit":"true","submit":"true","next":"V3_SUBMITTED","desc":"Returned with change requests"},{"code":"SUPERSEDED","name":"Superseded","edit":"false","submit":"false","next":"—","desc":"Replaced by newer version"}],
+"6b":[{"action":"OVERRIDE","detail":"Bulk override: 0 loans (debug run)","by":"nick@porchpass.com","when":"2026-01-30 03:38"},{"action":"OVERRIDE","detail":"Bulk override: 390 loans UPB variance","by":"nick@porchpass.com","when":"2026-01-30 03:42"},{"action":"PROMOTE","detail":"391 loans V1 → V2","by":"nick@porchpass.com","when":"2026-01-30 04:10"},{"action":"SUBMIT","detail":"391 loans submitted to ROGUE","by":"ken@porchpass.com","when":"2026-01-30 04:11"},{"action":"FINALIZE","detail":"391 loans finalized as V4","by":"nick@porchpass.com","when":"2026-01-30 04:21"},{"action":"CREATE","detail":"New CORRECTION request from ROGUE","by":"Sarah Miller (Rogue)","when":"2026-02-21 10:18"},{"action":"CORRECT","detail":"Corrected escrow_collected → $245.50","by":"nick@porchpass.com","when":"2026-02-21 10:20"}],
+"6c":[{"ver":"V4","upb":"$295,384","principal":"$312","interest":"$2,067","approved":"nick@porchpass.com"},{"ver":"V4","upb":"$272,854","principal":"$0","interest":"$0","approved":"nick@porchpass.com"},{"ver":"V4","upb":"$265,819","principal":"$456","interest":"$1,773","approved":"nick@porchpass.com"},{"ver":"V4","upb":"$264,972","principal":"$0","interest":"$0","approved":"nick@porchpass.com"},{"ver":"V4","upb":"$263,042","principal":"$0","interest":"$0","approved":"nick@porchpass.com"}],
+"6d":[{"period":"2025-12-31","partner":"ROGUE","loans":"391","upb":"$50,304,882","archived":"2026-01-30 04:21"}],
+"6e":[{"type":"CORRECTION","by":"Sarah Miller (Rogue)","via":"EMAIL","desc":"Escrow collected appears incorrect for loan_T123ABC456XYZhv. Our records show different escrow.","created":"2026-02-21 10:18"}],
+"6f":[{"field":"escrow_collected","old":"null","new":"$245.50","type":"BANK_REQUEST","version":"V4_APPROVED","when":"2026-02-21 10:20"},{"field":"UPB_OVERRIDE","old":"$955.51","new":"APPROVED","type":"MANUAL_OVERRIDE","version":"V1_AUTO","when":"2026-01-30 03:42"},{"field":"UPB_OVERRIDE","old":"$13,808","new":"APPROVED","type":"MANUAL_OVERRIDE","version":"V1_AUTO","when":"2026-01-30 03:42"},{"field":"UPB_OVERRIDE","old":"$1,114","new":"APPROVED","type":"MANUAL_OVERRIDE","version":"V1_AUTO","when":"2026-01-30 03:42"},{"field":"UPB_OVERRIDE","old":"$503.56","new":"APPROVED","type":"MANUAL_OVERRIDE","version":"V1_AUTO","when":"2026-01-30 03:42"}],
+"7a":[{"pipeline":"monthly_remittance","period":"2025-12-31","status":"COMPLETED","loans":"391","validations":"3,519","pass_rate":"64.2%","duration":"150 min","trigger":"MANUAL"}],
+"7b":[{"step":"🚀 Pipeline Started","rows":"—","dur":"1s"},{"step":"🥉 File Ingestion","rows":"2","dur":"59s"},{"step":"🥉 Transactions Loaded","rows":"785","dur":"2m"},{"step":"🥉 Trial Balance Loaded","rows":"397","dur":"2m"},{"step":"🥈 Loans Transformed","rows":"398","dur":"3m"},{"step":"🥈 ID Crosswalk Mapped","rows":"398","dur":"1m"},{"step":"🥈 Payments Parsed","rows":"785","dur":"3m"},{"step":"🥈 Snapshots Created","rows":"391","dur":"2m"},{"step":"🥇 Report Drafts","rows":"391","dur":"4m"},{"step":"✅ Validations","rows":"3,519","dur":"4m"},{"step":"🔧 UPB Override","rows":"390","dur":"1m"},{"step":"📋 V1 → V2","rows":"391","dur":"1m"},{"step":"📤 V2 → V3","rows":"391","dur":"1m"},{"step":"🔒 V3 → V4","rows":"391","dur":"1m"},{"step":"🎉 Complete","rows":"—","dur":"3s"}],
+"7c":[{"check":"UPB_MATCH","pass":"1","fail":"390","rate":"0.26%"},{"check":"RATE_MATCH","pass":"391","fail":"0","rate":"100%"},{"check":"PI_PAYMENT","pass":"391","fail":"0","rate":"100%"},{"check":"NEXT_DUE","pass":"192","fail":"199","rate":"49.1%"},{"check":"PRINCIPAL","pass":"345","fail":"46","rate":"88.2%"},{"check":"INTEREST","pass":"391","fail":"0","rate":"100%"},{"check":"ESCROW","pass":"158","fail":"233","rate":"40.4%"},{"check":"LATE_FEES","pass":"381","fail":"10","rate":"97.4%"},{"check":"INT_ACCRUED","pass":"9","fail":"382","rate":"2.3%"}],
+"7d":[{"action":"OVERRIDE","detail":"Bulk: 0 loans (debug)","old":"FAILED","new":"PASSED_WARN","by":"nick@porchpass.com","when":"01-30 03:38"},{"action":"OVERRIDE","detail":"Bulk: 390 loans","old":"FAILED","new":"PASSED_WARN","by":"nick@porchpass.com","when":"01-30 03:42"},{"action":"PROMOTE","detail":"391 loans V1→V2","old":"V1_AUTO","new":"V2_REVIEWED","by":"nick@porchpass.com","when":"01-30 04:10"},{"action":"SUBMIT","detail":"391 → ROGUE","old":"V2_REVIEWED","new":"V3_SUBMITTED","by":"ken@porchpass.com","when":"01-30 04:11"},{"action":"FINALIZE","detail":"391 loans","old":"V3_SUBMITTED","new":"V4_APPROVED","by":"nick@porchpass.com","when":"01-30 04:21"},{"action":"CREATE","detail":"CORRECTION req","old":"—","new":"—","by":"Sarah Miller","when":"02-21 10:18"},{"action":"CORRECT","detail":"escrow→$245.50","old":"—","new":"—","by":"nick@porchpass.com","when":"02-21 10:20"}],
+"7e":[{"loans":"391","upb":"$50.3M","avg":"$128,657","principal":"$30,271","interest":"$222,748","escrow":"$776,119","fees":"$320","performing":"366","dpd1":"8","dpd30":"12","dpd60":"4","dpd90":"9","overrides":"390","pass_rate":"64.2%","duration":"150 min"}],
+"8a":[{"dataset":"bronze","tables":"5"},{"dataset":"silver","tables":"6"},{"dataset":"gold","tables":"7"},{"dataset":"operations","tables":"5"}],
+"8b":[{"type":"BASE TABLE","count":"23"},{"type":"VIEW","count":"15"}],
+"8c":[{"proc":"apply_correction","desc":"Records and applies field-level corrections"},{"proc":"apply_fallback_logic","desc":"Fills NULL values from prior month V4"},{"proc":"bulk_override_upb_variance","desc":"Batch approves UPB variance exceptions"},{"proc":"create_change_request","desc":"Logs bank partner change requests"},{"proc":"export_archive","desc":"Exports report & creates archive record"},{"proc":"finalize_report","desc":"Locks report as V4 Final (immutable)"},{"proc":"get_historical_report","desc":"Retrieves prior period reports"},{"proc":"promote_v1_to_v2","desc":"Promotes Auto → Reviewed after QA"},{"proc":"promote_v2_to_v3","desc":"Submits report to bank partner"}],
+"8d":[{"loan":"loan_Y123ABC456XYZ4D","txns":"1","s_upb":"$164,935","g_upb":"$163,942","f_upb":"$163,942","lineage":"✅ Complete (V4)"},{"loan":"loan_v123ABC456XYZDq","txns":"2","s_upb":"$247,880","g_upb":"$246,909","f_upb":"$246,909","lineage":"✅ Complete (V4)"},{"loan":"loan_C123ABC456XYZhK","txns":"1","s_upb":"$211,535","g_upb":"$209,913","f_upb":"$209,913","lineage":"✅ Complete (V4)"},{"loan":"loan_o123ABC456XYZdb","txns":"5","s_upb":"$62,411","g_upb":"$62,267","f_upb":"$62,267","lineage":"✅ Complete (V4)"},{"loan":"loan_E123ABC456XYZdH","txns":"1","s_upb":"$212,119","g_upb":"$209,757","f_upb":"$209,757","lineage":"✅ Complete (V4)"}],
+"Q1":[{"bucket":"Current","loans":"358","upb":"$46,314,626","pct":"91.6%"},{"bucket":"1-29 DPD","loans":"8","upb":"$912,632","pct":"2.0%"},{"bucket":"30-59 DPD","loans":"12","upb":"$1,498,088","pct":"3.1%"},{"bucket":"60-89 DPD","loans":"4","upb":"$437,696","pct":"1.0%"},{"bucket":"90+ DPD","loans":"9","upb":"$1,141,840","pct":"2.3%"}],
+"Q2":[{"total_upb":"$50,304,882.15","total_loans":"391","avg_loan":"$128,656.99"}],
+"Q3":[{"total":"3,519","types":"9","loans":"391","formula":"9 × 391 = 3,519"}],
+"Q4":[{"component":"BigQuery Storage","cost":"~$1-2/mo"},{"component":"BigQuery Queries","cost":"~$1-3/mo"},{"component":"Cloud Storage (GCS)","cost":"~$1/mo"},{"component":"Cloud Functions","cost":"~$2-5/mo"},{"component":"Cloud Scheduler","cost":"~$0.10/mo"},{"component":"── TOTAL ──","cost":"~$5-10/mo"}],
+"Q5":[{"proc":"apply_correction","desc":"Records & applies field-level corrections"},{"proc":"apply_fallback_logic","desc":"Fills NULLs from prior month V4"},{"proc":"bulk_override_upb_variance","desc":"Batch approves UPB exceptions"},{"proc":"create_change_request","desc":"Logs bank change requests"},{"proc":"export_archive","desc":"Exports report & creates archive"},{"proc":"finalize_report","desc":"Locks as V4 Final (immutable)"},{"proc":"get_historical_report","desc":"Retrieves prior period reports"},{"proc":"promote_v1_to_v2","desc":"Auto → Reviewed after QA"},{"proc":"promote_v2_to_v3","desc":"Submits to bank partner"}],
+"Q6":[{"loan":"loan_G123ABC456XYZab","upb":"$115,735","errors":"5","score":"44.4%","override":"true"},{"loan":"loan_t123ABC456XYZ8s","upb":"$165,435","errors":"5","score":"44.4%","override":"true"},{"loan":"loan_1123ABC456XYZAZ","upb":"$89,681","errors":"5","score":"44.4%","override":"true"},{"loan":"loan_h123ABC456XYZ3D","upb":"$74,950","errors":"5","score":"44.4%","override":"true"},{"loan":"loan_G123ABC456XYZWb","upb":"$139,490","errors":"5","score":"44.4%","override":"true"}],
+"Q7":[{"step":"🚀 Pipeline Started","rows":"—","dur":"1s"},{"step":"🥉 File Ingestion","rows":"2","dur":"59s"},{"step":"🥉 Transactions","rows":"785","dur":"2m"},{"step":"🥉 Trial Balance","rows":"397","dur":"2m"},{"step":"🥈 Loans Transformed","rows":"398","dur":"3m"},{"step":"🥈 Crosswalk","rows":"398","dur":"1m"},{"step":"🥈 Payments","rows":"785","dur":"3m"},{"step":"🥈 Snapshots","rows":"391","dur":"2m"},{"step":"🥇 Report Drafts","rows":"391","dur":"4m"},{"step":"✅ Validations","rows":"3,519","dur":"4m"},{"step":"🔧 UPB Override","rows":"390","dur":"1m"},{"step":"📋 V1→V2","rows":"391","dur":"1m"},{"step":"📤 V2→V3","rows":"391","dur":"1m"},{"step":"🔒 V3→V4","rows":"391","dur":"1m"},{"step":"🎉 Complete","rows":"—","dur":"3s"}],
+"Q8":[{"loan":"loan_T123ABC456XYZhv","midwest":"2012043","txns":"3","s_upb":"$297,573","g_upb":"$295,384","errors":"5","f_upb":"$295,384","status":"✅ V4 Finalized"}],
+"Q9":[{"ds":"bronze","name":"raw_midwest_tbal_staging","type":"TABLE"},{"ds":"bronze","name":"raw_midwest_transactions","type":"TABLE"},{"ds":"bronze","name":"raw_midwest_transactions_staging","type":"TABLE"},{"ds":"bronze","name":"raw_midwest_trial_balance","type":"TABLE"},{"ds":"bronze","name":"sftp_file_ingests","type":"TABLE"},{"ds":"gold","name":"change_requests","type":"TABLE"},{"ds":"gold","name":"remittance_report_drafts","type":"TABLE"},{"ds":"gold","name":"remittance_report_final","type":"TABLE"},{"ds":"gold","name":"remittance_report_history","type":"TABLE"},{"ds":"gold","name":"remittance_validations","type":"TABLE"},{"ds":"gold","name":"report_audit_log","type":"TABLE"},{"ds":"gold","name":"report_corrections","type":"TABLE"},{"ds":"gold","name":"v_data_lineage_trace","type":"VIEW"},{"ds":"gold","name":"v_delinquency_breakdown","type":"VIEW"},{"ds":"gold","name":"v_loan_lineage_summary","type":"VIEW"},{"ds":"gold","name":"v_portfolio_executive_summary","type":"VIEW"},{"ds":"gold","name":"vw_loan_sale_data","type":"VIEW"},{"ds":"gold","name":"vw_remittance_executive_summary","type":"VIEW"},{"ds":"gold","name":"vw_validation_dashboard","type":"VIEW"},{"ds":"operations","name":"bank_partners","type":"TABLE"},{"ds":"operations","name":"pipeline_logs","type":"TABLE"},{"ds":"operations","name":"pipeline_runs","type":"TABLE"},{"ds":"operations","name":"report_version_status","type":"TABLE"},{"ds":"operations","name":"v_audit_trail","type":"VIEW"},{"ds":"operations","name":"v_correction_history","type":"VIEW"},{"ds":"operations","name":"v_fallback_summary","type":"VIEW"},{"ds":"operations","name":"v_loans_requiring_review","type":"VIEW"},{"ds":"operations","name":"v_pipeline_history","type":"VIEW"},{"ds":"operations","name":"v_pipeline_steps","type":"VIEW"},{"ds":"operations","name":"v_report_status_dashboard","type":"VIEW"},{"ds":"operations","name":"v_validation_trends","type":"VIEW"},{"ds":"operations","name":"validation_check_config","type":"TABLE"},{"ds":"silver","name":"loan_id_crosswalk","type":"TABLE"},{"ds":"silver","name":"loan_id_crosswalk_staging","type":"TABLE"},{"ds":"silver","name":"loan_payments","type":"TABLE"},{"ds":"silver","name":"loan_sale_data_staging","type":"TABLE"},{"ds":"silver","name":"loan_snapshots","type":"TABLE"},{"ds":"silver","name":"loans","type":"TABLE"}]
+};
+
+// ═══════════════════════════════════════════════════════════
+// SEGMENT CONFIGURATION
+// ═══════════════════════════════════════════════════════════
+const SEGS=[
+{id:2,t:"Data Ingestion — SFTP Proxy",s:"Bronze layer: Raw source files from Midwest, zero transformation applied.",color:"#cd7f32",
+ m:[{v:"2",l:"Files Ingested",c:"teal"},{v:"785",l:"REMIT_DATA Rows"},{v:"397",l:"TBALDATA Rows"},{v:"100%",l:"Success Rate",c:"green"}],
+ steps:[{id:"2b",n:"File ingestion tracking",r:"2 files",d:"2b"},{id:"2c",n:"Raw REMIT_DATA sample (Bronze)",r:"785 total · 10 shown",d:"2c"},{id:"2d",n:"Raw TBALDATA sample (Bronze)",r:"397 total · 10 shown",d:"2d"},{id:"2e",n:"Record counts by source",r:"3 sources",d:"2e"}],
+ note:"Both files ingested into Bronze with <strong>zero transformation</strong> — preserving original Midwest data exactly as received via SFTP."},
+{id:3,t:"Bronze → Silver Transformation",s:"Cleaned, normalized, and enriched with unified PorchPass loan identifiers.",color:"#c0c0c0",
+ m:[{v:"398",l:"Loans Transformed",c:"teal"},{v:"$51.5M",l:"Silver UPB"},{v:"398",l:"IDs Cross-Mapped",c:"blue"},{v:"785",l:"Payments Parsed"}],
+ steps:[{id:"3a",n:"Top loans by UPB (Silver)",r:"398 total · 6 shown",d:"3a"},{id:"3b",n:"Portfolio summary (Silver)",r:"1 aggregate",d:"3b"},{id:"3c",n:"ID Crosswalk (Midwest → PorchPass)",r:"398 total · 5 shown",d:"3c"},{id:"3d",n:"Parsed payment transactions",r:"785 total · 5 shown",d:"3d"}],
+ note:"The ID Crosswalk bridges <strong>three identifier systems</strong> (Midwest → Madison → PorchPass), enabling seamless joins across all layers."},
+{id:4,t:"Silver → Gold Report Generation",s:"Auto-generated remittance report drafts with V1→V4 version lifecycle.",color:"#ffd700",
+ m:[{v:"391",l:"Gold Loans",c:"teal"},{v:"$50.3M",l:"Gold UPB"},{v:"V4",l:"Current Version",c:"green"},{v:"1,173",l:"Draft Records"}],
+ steps:[{id:"4a",n:"Report drafts — sorted by severity",r:"391 total · 5 shown",d:"4a"},{id:"4b",n:"Portfolio metrics from Gold",r:"1 summary",d:"4b"},{id:"4c",n:"Version history — single loan trace",r:"3 versions",d:"4c"}],
+ note:"<strong>1,173 draft records</strong> = 391 loans × 3 versions. Each promotion creates new rows while preserving complete audit history."},
+{id:5,t:"Validation Framework",s:"9 automated checks × 391 loans = 3,519 total validations per reporting cycle.",color:"#16a34a",
+ m:[{v:"3,519",l:"Total Checks",c:"teal"},{v:"9",l:"Check Types"},{v:"64.2%",l:"Pass Rate",c:"amber"},{v:"2,259",l:"Passed",c:"green"}],
+ steps:[{id:"5a",n:"Validation summary — all 9 checks",r:"9 checks",d:"5a"},{id:"5b",n:"Single-loan drill-down",r:"9 checks",d:"5b"},{id:"5c",n:"Configurable validation rules",r:"9 rules",d:"5c"},{id:"5d",n:"Aggregate validation stats",r:"1 summary",d:"5d"}],
+ note:"Validation rules are <strong>fully configurable</strong> — tolerance types, threshold values, and blocking flags stored in <code>operations.validation_check_config</code>."},
+{id:6,t:"Version Lifecycle & Audit Trail",s:"Complete V1→V4 workflow with immutable logging and field-level corrections.",color:"#7c3aed",
+ m:[{v:"6",l:"Version States",c:"purple"},{v:"7",l:"Audit Entries"},{v:"1",l:"Change Request",c:"amber"},{v:"391",l:"Finalized",c:"green"}],
+ steps:[{id:"6a",n:"Version state machine",r:"6 states",d:"6a"},{id:"6b",n:"Complete audit trail (Dec 2025)",r:"7 entries",d:"6b"},{id:"6c",n:"Finalized report — top 5 by UPB",r:"391 total · 5 shown",d:"6c"},{id:"6d",n:"Archive record",r:"1 record",d:"6d"},{id:"6e",n:"Change request (demo scenario)",r:"1 request",d:"6e"},{id:"6f",n:"Corrections applied",r:"10 total · 5 shown",d:"6f"}],
+ note:"Every action is <strong>immutably logged</strong>. Once V4_APPROVED, data in <code>remittance_report_final</code> is permanent and unchangeable."},
+{id:7,t:"Monitoring & Observability",s:"Pipeline execution tracking with step-level metrics and executive dashboards.",color:"#2563eb",
+ m:[{v:"150m",l:"Pipeline Duration",c:"blue"},{v:"15",l:"Pipeline Steps"},{v:"391",l:"Loans Processed",c:"teal"},{v:"✓",l:"COMPLETED",c:"green"}],
+ steps:[{id:"7a",n:"Pipeline execution history",r:"1 run",d:"7a"},{id:"7b",n:"Step-by-step pipeline detail",r:"15 steps",d:"7b",sp:"pipe"},{id:"7c",n:"Validation trends by check type",r:"9 checks",d:"7c"},{id:"7d",n:"Full audit trail view (with notes)",r:"7 entries",d:"7d"},{id:"7e",n:"Portfolio executive summary",r:"1 record — the showstopper",d:"7e"}],
+ note:"The <strong>executive summary view</strong> powers one-click portfolio health checks — every key metric from a single query."},
+{id:8,t:"Schema & Architecture",s:"Complete platform inventory: 4 datasets, 23 tables, 15 views, 9 procedures.",color:"#0f766e",
+ m:[{v:"23",l:"Base Tables",c:"teal"},{v:"15",l:"Views",c:"blue"},{v:"9",l:"Procedures",c:"purple"},{v:"38",l:"Total Objects"}],
+ steps:[{id:"8a",n:"Tables by dataset (medallion layers)",r:"4 datasets",d:"8a"},{id:"8b",n:"Tables vs views (project totals)",r:"2 types",d:"8b"},{id:"8c",n:"All stored procedures",r:"9 procedures",d:"8c"},{id:"8d",n:"Single-loan lineage: Bronze→Final",r:"5 loans traced",d:"8d"}],
+ note:"Every loan traceable from <strong>SFTP source → Bronze → Silver → Gold → Final</strong>. Critical for audit compliance and investor due diligence."},
+{id:"Q",t:"Live Q&A — CFO Questions",s:"Pre-built queries ready for any question Tao might ask during the demo.",color:"#dc2626",
+ m:[{v:"9",l:"Ready Queries",c:"red"},{v:"$50.3M",l:"Portfolio UPB",c:"teal"},{v:"$5-10",l:"Monthly Cost",c:"green"},{v:"391",l:"Active Loans"}],
+ steps:[{id:"Q1",n:"\"How many loans are delinquent?\"",r:"5 buckets",d:"Q1"},{id:"Q2",n:"\"What\'s the total UPB?\"",r:"1 answer",d:"Q2"},{id:"Q3",n:"\"How many validation checks run?\"",r:"1 answer",d:"Q3"},{id:"Q4",n:"\"How much does this cost?\"",r:"6 components",d:"Q4"},{id:"Q5",n:"\"Show me all stored procedures\"",r:"9 procedures",d:"Q5"},{id:"Q6",n:"\"What about data quality?\"",r:"5 worst loans",d:"Q6"},{id:"Q7",n:"\"How long does the pipeline take?\"",r:"15 steps",d:"Q7",sp:"pipe"},{id:"Q8",n:"\"Can you trace a single loan?\"",r:"1 loan traced",d:"Q8"},{id:"Q9",n:"\"What\'s in each dataset?\"",r:"38 objects",d:"Q9"}],
+ note:"Each query is <strong>pre-built, tested, and saved</strong> in BigQuery. Click any tab → instant answer for Tao."}
+];
+
+// ═══════════════════════════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════════════════════════
+function mkTbl(dk){
+  const rows=D[dk]; if(!rows||!rows.length) return '<div class="tbl-ft">No data</div>';
+  const cols=Object.keys(rows[0]);
+  let h='<div class="tbl-w"><table><thead><tr>';
+  cols.forEach(c=>h+=`<th>${c.replace(/_/g,' ')}</th>`);
+  h+='</tr></thead><tbody>';
+  rows.forEach(r=>{h+='<tr>';cols.forEach(c=>{
+    let v=r[c]??'—',cl='';
+    if(v==='PASS'||v==='COMPLETED'||v==='true'||v==='PERFORMING') cl='pass';
+    else if(v==='FAIL'||v==='DQ60+'||v==='COLLECTIONS') cl='fail';
+    else if(String(v).includes('✅')||v==='V4_APPROVED') cl='ok';
+    else if(v==='PASSED_WITH_WARNINGS'||v==='PASSED_WARN') cl='warn';
+    if(typeof v==='string'&&v.length>45) cl='tx';
+    h+=`<td${cl?' class="'+cl+'"':''}>${v}</td>`;
+  });h+='</tr>';});
+  h+='</tbody></table></div>';return h;
+}
+function mkPipe(dk){
+  const rows=D[dk];let h='<div class="pipe">';
+  rows.forEach(r=>{
+    const s=r.step||r.step_description||'';const ico=s.substring(0,2);const nm=s.substring(2).trim();
+    h+=`<div class="pipe-r"><div class="pipe-ico">${ico}</div><div class="pipe-nm">${nm}</div><div class="pipe-rows">${r.rows||r.rows_affected||'—'}</div><div class="pipe-dur">${r.dur||r.step_duration_seconds||''}</div></div>`;
+  });
+  return h+'</div>';
+}
+
+// Build validation heatmap for Section 5
+function mkVHeat(){
+  const checks=D["5a"];if(!checks) return '';
+  const colors={'100%':'var(--green)','97.4%':'#22c55e','88.2%':'#84cc16','49.1%':'var(--amber)','40.4%':'#f97316','2.3%':'var(--red)','0.26%':'var(--red)'};
+  let h='<div class="vheat">';
+  checks.forEach(c=>{
+    const r=c.rate;const bg=colors[r]||'var(--steel)';
+    const light=parseFloat(r)>=80;
+    h+=`<div class="vh-cell" style="background:${bg};color:${light?'white':'white'}"><div class="vh-nm">${c.check}</div><div class="vh-val">${r}</div></div>`;
+  });
+  return h+'</div>';
+}
+
+// Build version flow for Section 6
+function mkFlow(){
+  const states=[{l:'V1_AUTO',s:'Auto-Gen'},{l:'V2_REVIEWED',s:'QA/QC'},{l:'V3_SUBMITTED',s:'To Bank'},{l:'V4_APPROVED',s:'Final ✓'}];
+  let h='<div class="flow">';
+  states.forEach((st,i)=>{
+    h+=`<div class="flow-node done"><div class="flow-lbl">${st.l}</div><div class="flow-sub">${st.s}</div></div>`;
+    if(i<states.length-1) h+='<div class="flow-arr">→</div>';
+  });
+  return h+'</div>';
+}
+
+function render(){
+  let html='';
+  SEGS.forEach(seg=>{
+    html+=`<div class="seg" id="seg-${seg.id}">`;
+    html+=`<div class="seg-hdr"><div class="seg-num" style="background:${seg.color||'var(--navy)'}">${seg.id}</div><div class="seg-ttl">${seg.t}</div></div>`;
+    html+=`<div class="seg-sub">${seg.s}</div>`;
+    // Metrics
+    html+='<div class="metrics">';seg.m.forEach(m=>html+=`<div class="m-card"><div class="m-val ${m.c||''}">${m.v}</div><div class="m-lbl">${m.l}</div></div>`);html+='</div>';
+    // Special visualizations
+    if(seg.id===5) html+=mkVHeat();
+    if(seg.id===6) html+=mkFlow();
+    // Step cards
+    seg.steps.forEach(st=>{
+      html+=`<div class="scard" id="step-${st.id}"><div class="sc-hd" onclick="togStep('${st.id}')"><span class="sc-id">${st.id}</span><span class="sc-nm">${st.n}</span><span class="sc-badge">${st.r}</span><span class="sc-arr">▶</span></div>`;
+      html+='<div class="sc-body">';
+      html+= st.sp==='pipe' ? mkPipe(st.d) : mkTbl(st.d);
+      html+='</div></div>';
+    });
+    if(seg.note) html+=`<div class="callout${seg.id==='Q'?' blue':''}"><strong>Key Point:</strong> ${seg.note}</div>`;
+    html+='</div>';
+  });
+  document.getElementById('content').innerHTML=html;
+  initObs();
+}
+
+// ═══════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════
+function renderSB(){
+  let h='';
+  SEGS.forEach(seg=>{
+    h+=`<div class="sb-seg" id="nav-${seg.id}"><div class="sb-seg-hdr" onclick="togNav('${seg.id}');goSeg('${seg.id}')"><span class="sb-num" style="background:${seg.color||'rgba(255,255,255,.08)'};color:white">${seg.id}</span>${seg.t}</div><div class="sb-steps">`;
+    seg.steps.forEach(st=>{h+=`<div class="sb-step" onclick="goStep('${st.id}')">${st.id}. ${st.n.replace(/"/g,'')}</div>`;});
+    h+='</div></div>';
+  });
+  document.getElementById('sbNav').innerHTML=h;
+}
+function togNav(id){document.getElementById(`nav-${id}`).classList.toggle('open')}
+
+// ═══════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════
+function togStep(id){document.getElementById(`step-${id}`).classList.toggle('open')}
+function togSB(){document.getElementById('sidebar').classList.toggle('collapsed');document.getElementById('main').classList.toggle('expanded')}
+function goSeg(id){document.getElementById(`seg-${id}`)?.scrollIntoView({behavior:'smooth',block:'start'})}
+function goStep(id){
+  const el=document.getElementById(`step-${id}`);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('open','hl');setTimeout(()=>el.classList.remove('hl'),2500)}
+}
+
+// ═══════════════════════════════════════════════
+// SCROLL OBSERVER
+// ═══════════════════════════════════════════════
+function initObs(){
+  const obs=new IntersectionObserver(ents=>{
+    ents.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('vis');
+        const segs=document.querySelectorAll('.seg');
+        const idx=[...segs].indexOf(e.target);
+        document.getElementById('progFill').style.width=Math.min(100,((idx+1)/segs.length)*100)+'%';
+        // Highlight sidebar
+        const segId=e.target.id.replace('seg-','');
+        document.querySelectorAll('.sb-seg-hdr').forEach(h=>h.classList.remove('act'));
+        document.querySelector(`#nav-${segId} .sb-seg-hdr`)?.classList.add('act');
+      }
+    });
+  },{threshold:.15});
+  document.querySelectorAll('.seg').forEach(el=>obs.observe(el));
+}
+
+// ═══════════════════════════════════════════════
+// ENHANCED PIPELINE RIDE — IMMERSIVE DATA JOURNEY
+// ═══════════════════════════════════════════════
+const RIDE=[
+  {layer:"SFTP PROXY",color:"#cd7f32",pClass:"bronze",icon:"📡",title:"📡 Incoming Data",
+   sub:"Two files from Midwest sub-servicer land on the SFTP proxy server.\nThe pipeline detects new files and begins ingestion.",
+   data:[{v:2,l:"Files",fmt:""},{v:785,l:"Transactions",fmt:","},{v:397,l:"Trial Balance",fmt:","},{v:3.1,l:"MB Each",fmt:".1"}],
+   edu:"Raw data ingestion is the foundation of any reliable data platform. By preserving source files exactly as received, we maintain a complete audit trail — critical for SEC compliance and investor due diligence.",
+   narrative:"I'm a CSV file, just landed from Midwest's SFTP server at 6:00 AM. I carry 785 payment transactions from December. The pipeline spots me immediately...",
+   viz:"table",vizData:{cols:["File","Type","Rows","Size","Status"],rows:[["file_dec2025_001","REMIT_DATA","785","3.1 MB","✅"],["file_dec2025_002","TBALDATA","397","3.1 MB","✅"]]},
+   totals:{files:2,rows:1182,loans:0,upb:"—",checks:0}},
+
+  {layer:"BRONZE LAYER",color:"#cd7f32",pClass:"bronze",icon:"🥉",title:"🥉 Raw Data Preserved",
+   sub:"Zero transformation applied. Original Midwest data stored exactly as received.\nChecksums verified. Timestamps logged. Source of truth established.",
+   data:[{v:1184,l:"Total Rows",fmt:","},{v:5,l:"Bronze Tables",fmt:""},{v:0,l:"Transformations",fmt:""},{v:100,l:"% Fidelity",fmt:""}],
+   edu:"The Bronze layer's 'zero transformation' policy means we can always re-derive any downstream result from scratch. If a business rule changes in 6 months, we reprocess from Bronze — no need to request data re-delivery from Midwest.",
+   narrative:"Now I'm in BigQuery's Bronze layer. Nobody's touched my data — every field exactly as Midwest sent it. SHA256 checksum verified. I'm the source of truth now.",
+   viz:"transform",vizBefore:{hdr:"Raw SFTP File",vals:["9000000052 | 2025-12-09 | 2080.65","900000033 | 2025-12-09 | 321.38","1000000014 | 2025-12-09 | 248.51"]},vizAfter:{hdr:"Bronze (Identical)",vals:["9000000052 | 2025-12-09 | 2080.65","900000033 | 2025-12-09 | 321.38","1000000014 | 2025-12-09 | 248.51"]},
+   totals:{files:2,rows:1182,loans:0,upb:"—",checks:0}},
+
+  {layer:"SILVER LAYER",color:"#c0c0c0",pClass:"silver",icon:"🥈",title:"🥈 Data Transformed",
+   sub:"Loans normalized with unified PorchPass identifiers. ID Crosswalk maps\nMidwest → Madison → PorchPass. Payments parsed with reversal detection.",
+   data:[{v:398,l:"Loans",fmt:","},{v:51.5,l:"$M UPB",fmt:".1"},{v:785,l:"Payments",fmt:","},{v:398,l:"Crosswalk",fmt:","}],
+   edu:"The Silver layer is where raw data becomes business-meaningful. The 3-system ID Crosswalk (Midwest → Madison → PorchPass) solves a critical operational problem: different systems use different loan IDs for the same loan.",
+   narrative:"Things are getting interesting. My Midwest loan number 9000000052 just got mapped to Madison 6000005 AND PorchPass loan_9123ABC456XYZFz. Three IDs, one loan. The crosswalk connects them all.",
+   viz:"flow",vizNodes:[{l:"Midwest ID",s:"9000000052",st:"done"},{l:"Madison ID",s:"6000005",st:"done"},{l:"PorchPass ID",s:"loan_9123A...",st:"active"},{l:"Enriched",s:"$249,713",st:""}],
+   totals:{files:2,rows:1967,loans:398,upb:"$51.5M",checks:0}},
+
+  {layer:"GOLD LAYER",color:"#ffd700",pClass:"gold",icon:"🥇",title:"🥇 Reports Auto-Generated",
+   sub:"V1_AUTO drafts created for each active loan. 391 of 398 loans qualify.\n7 excluded by filtering rules. Version lifecycle initiated.",
+   data:[{v:391,l:"Report Loans",fmt:","},{v:50.3,l:"$M UPB",fmt:".1"},{v:1,l:"V1 Version",fmt:""},{v:1173,l:"Draft Records",fmt:","}],
+   edu:"The Gold layer auto-generates investor-ready report drafts. 391 of 398 loans qualify — 7 are excluded by configurable business rules. This automation replaces 20+ hours of manual Excel work with a single SQL procedure.",
+   narrative:"I've been promoted to Gold! My raw payment of $2,080.65 is now part of loan_9123ABC456XYZFz's December remittance draft. I'm one of 391 loans in a $50.3M portfolio report. Version lifecycle begins...",
+   viz:"transform",vizBefore:{hdr:"Before (Manual Excel)",vals:["10-15 hours per month (per portfolio)","Error-prone copy/paste","223,504 formulas","No audit trail"]},vizAfter:{hdr:"After (Automated Gold)",vals:["< 5 minutes auto-gen","Validated SQL output","9 stored procedures","Full audit trail"]},
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:0}},
+
+  {layer:"VALIDATION",color:"#16a34a",pClass:"green",icon:"✅",title:"✅ 3,519 Checks Executed",
+   sub:"9 automated validation checks run against every loan (65+ validations not yet implemented).\nEach check compares Loan Sale Data (calc) vs. Remit Data (historical) vs. Remit Data (source) vs. Trial Balance (source).",
+   data:[{v:3519,l:"Total Checks",fmt:","},{v:3,l:"100% Pass",fmt:""},{v:64.2,l:"% Overall",fmt:".1"},{v:1260,l:"Failures",fmt:","}],
+   edu:"Cross-referencing two independent data sources (LSD vs TBAL) catches discrepancies that would be invisible in a single-source system. The 64.2% pass rate reveals known systematic UPB variances — not data errors, but timing differences between source systems.",
+   narrative:"9 checks just ran against me. Rate? PASS. P&I Payment? PASS. But my UPB shows a $955 variance between sources — it's a known timing difference, not an error. The system flags it for human review.",
+   viz:"vheat",vizChecks:[{n:"UPB",r:"0.26%",c:"#dc2626"},{n:"Rate",r:"100%",c:"#16a34a"},{n:"P&I Pmt",r:"100%",c:"#16a34a"},{n:"Next Due",r:"49.1%",c:"#d97706"},{n:"Principal",r:"88.2%",c:"#84cc16"},{n:"Interest",r:"100%",c:"#16a34a"},{n:"Escrow",r:"40.4%",c:"#f97316"},{n:"Late Fees",r:"97.4%",c:"#22c55e"},{n:"Int Accrd",r:"2.3%",c:"#dc2626"}],
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:3519}},
+
+  {layer:"OVERRIDE",color:"#d97706",pClass:"amber",icon:"🔧",title:"🔧 Known Variances Approved",
+   sub:"390 loans have systematic UPB variance between LSD and TBAL sources.\nBulk override applied with audit reference DEC2025-UPB-VARIANCE-001.",
+   data:[{v:390,l:"Overrides",fmt:","},{v:1,l:"Variance Type",fmt:"",raw:"UPB"},{v:14,l:"$K Max Range",fmt:","},{v:1,l:"Approval Ref",fmt:""}],
+   edu:"Bulk overrides with documented reference IDs maintain compliance while allowing operational efficiency. Every override is individually logged — auditors can trace exactly which loans were approved, by whom, and why.",
+   narrative:"My $955 UPB variance just got approved as part of bulk override DEC2025-UPB-VARIANCE-001. Nick reviewed the pattern: all 390 variances are systematic timing differences. Approved at 03:42 AM.",
+   viz:"table",vizData:{cols:["Loan","Variance","Type","Status"],rows:[["loan_G123ABC4...","$955.51","UPB_TIMING","✅ Approved"],["loan_t123ABC4...","$13,808","UPB_TIMING","✅ Approved"],["loan_1123ABC4...","$1,114","UPB_TIMING","✅ Approved"]]},
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:3519}},
+
+  {layer:"VERSION LIFECYCLE",color:"#7c3aed",pClass:"purple",icon:"📋",title:"📋 V1 → V2 → V3 → V4",
+   sub:"Report promoted through four stages. Nick reviews → Ken submits to ROGUE →\nBank approves → Final lock. Every transition logged in audit trail.",
+   data:[{v:1,l:"V1→V2",fmt:"",raw:"Nick"},{v:1,l:"V2→V3",fmt:"",raw:"Ken"},{v:1,l:"V3→V4",fmt:"",raw:"Bank"},{v:391,l:"Finalized",fmt:","}],
+   edu:"The 4-version lifecycle enforces separation of duties: the person who generates (Nick) differs from who submits (Ken), who differs from who approves (ROGUE bank). This satisfies SOX-style internal controls required by institutional investors.",
+   narrative:"I'm being promoted! V1_AUTO → V2_REVIEWED (Nick QA'd me at 04:10) → V3_SUBMITTED (Ken sent me to ROGUE) → V4_APPROVED (bank signed off at 04:21). I'm now immutable. Locked forever.",
+   viz:"versions",vizVersions:[{l:"V1_AUTO",s:"Auto-Gen",who:"System"},{l:"V2_REVIEWED",s:"QA/QC",who:"Nick"},{l:"V3_SUBMITTED",s:"To Bank",who:"Ken"},{l:"V4_APPROVED",s:"Final ✓",who:"ROGUE"}],
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:3519}},
+
+  {layer:"CORRECTION WORKFLOW",color:"#dc2626",pClass:"teal",icon:"📤",title:"📤 Bank Requests Change",
+   sub:"Sarah Miller from Rogue Credit Union emails: escrow amount incorrect\nfor loan_T123ABC456XYZhv. Nick applies correction. All audited.",
+   data:[{v:1,l:"Request",fmt:""},{v:245.50,l:"$ Correction",fmt:".2"},{v:2,l:"Min Turnaround",fmt:""},{v:1,l:"Audited ✅",fmt:"",raw:"✅"}],
+   edu:"Post-approval corrections demonstrate the system's ability to handle real-world edge cases. Instead of regenerating the entire report, targeted field-level corrections preserve the approved baseline while documenting every change.",
+   narrative:"Plot twist! Sarah Miller at ROGUE emailed: 'Escrow collected appears incorrect for my loan.' Nick found the issue, corrected escrow to $245.50, and logged it in 2 minutes. I'm still V4 — with a correction audit trail appended.",
+   viz:"table",vizData:{cols:["Field","Before","After","Who","When"],rows:[["escrow_collected","null","$245.50","nick@porchpass","02-21 10:20"]]},
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:3519}},
+
+  {layer:"PIPELINE COMPLETE",color:"#0d9488",pClass:"complete",icon:"🎉",title:"🎉 Report Finalized",
+   sub:"391 loans locked as V4_APPROVED. $50.3M portfolio fully validated.\n23 tables, 15 views, 9 procedures. Total cost: $5-10/month.",
+   data:[{v:391,l:"Loans",fmt:","},{v:50.3,l:"$M UPB",fmt:".1"},{v:38,l:"Objects",fmt:""},{v:5,l:"$-10/mo Cost",fmt:"",raw:"$5-10"}],
+   edu:"The entire pipeline — ingestion, transformation, validation, versioning, and archival — runs on BigQuery at $5-10/month. Comparable managed platforms (Informatica, Talend, dbt Cloud) would cost $2,000-5,000/month for this workload. That's a 99.5% cost reduction.",
+   narrative:"Journey complete. I started as a raw CSV on an SFTP server. Now I'm part of an investor-ready, V4-approved remittance report for a $50.3M portfolio. 3,519 validations, 9 stored procedures, 23 tables — all for less than a lunch.",
+   viz:"transform",vizBefore:{hdr:"Before PorchPass",vals:["20+ hours manual/mo","Excel with 223,504 formulas","No validation framework","No audit trail","No version control"]},vizAfter:{hdr:"After PorchPass",vals:["~30 minutes automated","9 stored procedures","3,519 validation checks","Immutable audit log","V1→V4 lifecycle"]},
+   totals:{files:2,rows:3140,loans:391,upb:"$50.3M",checks:3519}}
+];
+
+let rideT=null,rideCur=-1,ridePaused=false,rideActive=false;
+
+// ── Animated Counter ──
+function animateCounter(el,target,duration,fmt){
+  const start=performance.now();
+  const isSpecial=fmt==='special';
+  const numTarget=typeof target==='number'?target:parseFloat(String(target).replace(/[,$%]/g,''));
+  if(isNaN(numTarget)){el.textContent=target;return}
+  function step(now){
+    const elapsed=Math.min((now-start)/duration,1);
+    const eased=1-Math.pow(1-elapsed,3); // ease-out cubic
+    const current=numTarget*eased;
+    if(fmt===',') el.textContent=Math.round(current).toLocaleString();
+    else if(fmt==='.1') el.textContent=current.toFixed(1);
+    else if(fmt==='.2') el.textContent='$'+current.toFixed(2);
+    else el.textContent=Math.round(current);
+    if(elapsed<1) requestAnimationFrame(step);
+    else{
+      if(fmt===',') el.textContent=Math.round(numTarget).toLocaleString();
+      else if(fmt==='.1') el.textContent=numTarget.toFixed(1);
+      else if(fmt==='.2') el.textContent='$'+numTarget.toFixed(2);
+      else el.textContent=Math.round(numTarget);
+      el.closest('.ride-datum')?.classList.add('counted');
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// ── Build Pipeline Tracker ──
+function buildTracker(){
+  let h='<div class="ride-tracker-inner">';
+  RIDE.forEach((s,i)=>{
+    if(i>0) h+=`<div class="rt-line" id="rtLine${i}"></div>`;
+    h+=`<div class="rt-node" id="rtNode${i}" onclick="rideJumpTo(${i})"><div class="rt-dot"></div><div class="rt-lbl">${s.layer}</div></div>`;
+  });
+  h+='</div>';
+  document.getElementById('rideTracker').innerHTML=h;
+}
+
+// ── Update Tracker State ──
+function updateTracker(idx){
+  RIDE.forEach((_,i)=>{
+    const node=document.getElementById('rtNode'+i);
+    const line=document.getElementById('rtLine'+i);
+    if(!node) return;
+    node.className='rt-node';
+    if(i<idx) node.classList.add('done');
+    else if(i===idx) node.classList.add('active');
+    if(line){
+      line.className='rt-line';
+      if(i<idx) line.classList.add('done');
+      else if(i===idx) line.classList.add('active');
+    }
+  });
+}
+
+// ── Build Mini Visualization ──
+function buildViz(s){
+  if(!s.viz) return '';
+  if(s.viz==='table'&&s.vizData){
+    let h='<table class="ride-mini-tbl"><thead><tr>';
+    s.vizData.cols.forEach(c=>h+=`<th>${c}</th>`);
+    h+='</tr></thead><tbody>';
+    s.vizData.rows.forEach(r=>{h+='<tr>';r.forEach(v=>h+=`<td>${v}</td>`);h+='</tr>';});
+    return h+'</tbody></table>';
+  }
+  if(s.viz==='transform'){
+    let h='<div class="ride-transform">';
+    h+=`<div class="ride-tf-col before"><div class="ride-tf-hdr">${s.vizBefore.hdr}</div><div class="ride-tf-val">${s.vizBefore.vals.join('<br>')}</div></div>`;
+    h+='<div class="ride-tf-col arrow">→</div>';
+    h+=`<div class="ride-tf-col after"><div class="ride-tf-hdr">${s.vizAfter.hdr}</div><div class="ride-tf-val">${s.vizAfter.vals.join('<br>')}</div></div>`;
+    return h+'</div>';
+  }
+  if(s.viz==='flow'&&s.vizNodes){
+    let h='<div class="ride-flow-mini">';
+    s.vizNodes.forEach((n,i)=>{
+      if(i>0) h+=`<div class="rfm-arr in">→</div>`;
+      h+=`<div class="rfm-node in ${n.st}"><div>${n.l}</div><div class="rfm-sub">${n.s}</div></div>`;
+    });
+    return h+'</div>';
+  }
+  if(s.viz==='vheat'&&s.vizChecks){
+    let h='<div class="ride-vheat">';
+    s.vizChecks.forEach(c=>{
+      h+=`<div class="ride-vh-cell" style="background:${c.c};color:white"><div class="ride-vh-nm">${c.n}</div><div class="ride-vh-val">${c.r}</div></div>`;
+    });
+    return h+'</div>';
+  }
+  if(s.viz==='versions'&&s.vizVersions){
+    let h='<div class="ride-ver-flow">';
+    s.vizVersions.forEach((v,i)=>{
+      if(i>0) h+=`<div class="rvf-arr in">→</div>`;
+      const isActive=i===s.vizVersions.length-1;
+      h+=`<div class="rvf-node in ${isActive?'active':''}"><div>${v.l}</div><div class="rvf-sub">${v.s} · ${v.who}</div></div>`;
+    });
+    return h+'</div>';
+  }
+  return '';
+}
+
+// ── Build Running Totals ──
+function buildTotals(t){
+  if(!t) return;
+  const rows=[
+    {l:"Files Ingested",v:t.files},
+    {l:"Total Rows",v:typeof t.rows==='number'?t.rows.toLocaleString():t.rows},
+    {l:"Loans Active",v:typeof t.loans==='number'?t.loans.toLocaleString():t.loans},
+    {l:"Portfolio UPB",v:t.upb},
+    {l:"Validations",v:typeof t.checks==='number'?t.checks.toLocaleString():t.checks}
+  ];
+  let h='';
+  rows.forEach(r=>{h+=`<div class="ride-total-row"><span class="ride-total-lbl">${r.l}</span><span class="ride-total-val">${r.v}</span></div>`;});
+  document.getElementById('rideTotalRows').innerHTML=h;
+}
+
+// ── Create Particles ──
+function createParticles(pClass){
+  const bg=document.getElementById('rideBg');
+  // Remove old particles but keep grid
+  bg.querySelectorAll('.ride-particle').forEach(p=>p.remove());
+  for(let i=0;i<50;i++){
+    const p=document.createElement('div');
+    p.className='ride-particle '+pClass;
+    p.style.left=Math.random()*100+'%';
+    p.style.animationDuration=(3+Math.random()*9)+'s';
+    p.style.animationDelay=Math.random()*4+'s';
+    const sz=2+Math.random()*5;
+    p.style.width=sz+'px';p.style.height=sz+'px';
+    bg.appendChild(p);
+  }
+}
+
+// ── Show Ride Stage ──
+function showRideStage(){
+  if(rideCur>=RIDE.length){skipRide();return}
+  if(rideCur<0) rideCur=0;
+  const s=RIDE[rideCur];
+  const layer=document.getElementById('rideLayer');
+  const stage=document.getElementById('rideStage');
+  const sub=document.getElementById('rideSub');
+  const data=document.getElementById('rideData');
+  const viz=document.getElementById('rideViz');
+  const edu=document.getElementById('rideEdu');
+  const totals=document.getElementById('rideTotals');
+  const narrative=document.getElementById('rideNarrative');
+
+  // Fade out all
+  [layer,stage,sub,data,viz,edu,totals,narrative].forEach(el=>el.classList.remove('in'));
+
+  setTimeout(()=>{
+    // Layer badge
+    layer.innerHTML=`<span class="rl-badge glow-pulse" style="border-color:${s.color}40;background:${s.color}18"><span class="rl-icon">${s.icon}</span>${s.layer}</span>`;
+    stage.textContent=s.title;
+    sub.textContent=s.sub;
+
+    // Step counter
+    document.getElementById('rideStepCt').textContent=`${rideCur+1} / ${RIDE.length}`;
+    document.getElementById('rideProgFill').style.width=((rideCur+1)/RIDE.length*100)+'%';
+
+    // Update tracker
+    updateTracker(rideCur);
+
+    // Particles
+    createParticles(s.pClass);
+
+    // Data cards with animated counters
+    let dh='';
+    s.data.forEach((d,i)=>{
+      const display=d.raw||'0';
+      dh+=`<div class="ride-datum border-glow" style="animation-delay:${i*0.15}s"><div class="ride-datum-val" id="rdv${rideCur}_${i}">${d.raw||'0'}</div><div class="ride-datum-lbl">${d.l}</div></div>`;
+    });
+    data.innerHTML=dh;
+
+    // Visualization
+    viz.innerHTML=buildViz(s);
+
+    // Educational callout
+    document.getElementById('rideEduTxt').textContent=s.edu;
+
+    // Running totals
+    buildTotals(s.totals);
+
+    // Data narrative
+    document.getElementById('rideNarrText').innerHTML=s.narrative;
+
+    // Animate in with sequence
+    requestAnimationFrame(()=>{
+      layer.classList.add('in');
+      setTimeout(()=>stage.classList.add('in'),80);
+      setTimeout(()=>sub.classList.add('in'),180);
+      setTimeout(()=>{
+        data.classList.add('in');
+        // Animate counters
+        s.data.forEach((d,i)=>{
+          const el=document.getElementById(`rdv${rideCur}_${i}`);
+          if(el && typeof d.v==='number' && !d.raw){
+            setTimeout(()=>animateCounter(el,d.v,1200,d.fmt),i*150);
+          } else if(el && d.raw){
+            el.textContent=d.raw;
+          }
+        });
+      },300);
+      setTimeout(()=>viz.classList.add('in'),450);
+      setTimeout(()=>edu.classList.add('in'),600);
+      setTimeout(()=>totals.classList.add('in'),700);
+      setTimeout(()=>narrative.classList.add('in'),800);
+    });
+
+    // Auto-advance
+    if(!ridePaused){
+      rideT=setTimeout(()=>{
+        [layer,stage,sub,data,viz,edu,totals,narrative].forEach(el=>el.classList.remove('in'));
+        setTimeout(()=>{rideCur++;showRideStage();},500);
+      },6500);
+    }
+  },120);
+}
+
+// ── Ride Controls ──
+function startRide(){
+  const ov=document.getElementById('rideOv');ov.classList.add('show');
+  rideCur=0;ridePaused=false;rideActive=true;
+  document.getElementById('ridePauseIcon').textContent='⏸';
+  buildTracker();
+  showRideStage();
+}
+
+function skipRide(){
+  clearTimeout(rideT);rideActive=false;
+  document.getElementById('rideOv').classList.remove('show');
+  document.querySelectorAll('.seg').forEach(el=>el.classList.add('vis'));
+  document.getElementById('progFill').style.width='100%';
+}
+
+function rideNext(){
+  clearTimeout(rideT);
+  const allEls=['rideLayer','rideStage','rideSub','rideData','rideViz','rideEdu','rideTotals','rideNarrative'];
+  allEls.forEach(id=>document.getElementById(id)?.classList.remove('in'));
+  setTimeout(()=>{
+    rideCur=Math.min(rideCur+1,RIDE.length-1);
+    showRideStage();
+  },300);
+}
+
+function ridePrev(){
+  clearTimeout(rideT);
+  const allEls=['rideLayer','rideStage','rideSub','rideData','rideViz','rideEdu','rideTotals','rideNarrative'];
+  allEls.forEach(id=>document.getElementById(id)?.classList.remove('in'));
+  setTimeout(()=>{
+    rideCur=Math.max(rideCur-1,0);
+    showRideStage();
+  },300);
+}
+
+function rideJumpTo(idx){
+  clearTimeout(rideT);
+  const allEls=['rideLayer','rideStage','rideSub','rideData','rideViz','rideEdu','rideTotals','rideNarrative'];
+  allEls.forEach(id=>document.getElementById(id)?.classList.remove('in'));
+  setTimeout(()=>{
+    rideCur=idx;
+    showRideStage();
+  },300);
+}
+
+function rideGoFirst(){rideJumpTo(0)}
+function rideGoLast(){rideJumpTo(RIDE.length-1)}
+
+function rideTogglePause(){
+  ridePaused=!ridePaused;
+  document.getElementById('ridePauseIcon').textContent=ridePaused?'▶':'⏸';
+  if(ridePaused){
+    clearTimeout(rideT);
+  } else {
+    // Resume auto-advance from current
+    clearTimeout(rideT);
+    rideT=setTimeout(()=>{
+      const allEls=['rideLayer','rideStage','rideSub','rideData','rideViz','rideEdu','rideTotals','rideNarrative'];
+      allEls.forEach(id=>document.getElementById(id)?.classList.remove('in'));
+      setTimeout(()=>{rideCur++;showRideStage();},500);
+    },4000);
+  }
+}
+
+// ── Keyboard Navigation ──
+document.addEventListener('keydown',function(e){
+  if(!rideActive) return;
+  if(e.key==='ArrowRight'||e.key==='Right'){e.preventDefault();rideNext();}
+  else if(e.key==='ArrowLeft'||e.key==='Left'){e.preventDefault();ridePrev();}
+  else if(e.key===' '){e.preventDefault();rideTogglePause();}
+  else if(e.key==='Escape'||e.key==='Esc'){e.preventDefault();skipRide();}
+  else if(e.key==='Home'){e.preventDefault();rideGoFirst();}
+  else if(e.key==='End'){e.preventDefault();rideGoLast();}
+});
+
+// ===============================================
+// INIT
+// ===============================================
+render();renderSB();initObs();
+</script>
+</body>
+</html>
